@@ -58,7 +58,7 @@
 			<AppenderRef ref="TestClientMovement" />
 		</Logger>
 
-		<Logger name="com.congcoi123.lonely.dragon.TestServerMovement"
+		<Logger name="com.congcoi123.lonely.dragon.LonelyDragon"
 			level="${level}" additivity="false">
 			<AppenderRef ref="TestServerMovement" />
 		</Logger>
