@@ -21,29 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.congcoi123.lonely.dragon.constant
 
-import java.lang.UnsupportedOperationException
+package com.tenio.gdx.network;
 
-class Example4Constant private constructor() {
-    companion object {
-        const val DESIGN_WIDTH = 500
-        const val DESIGN_HEIGHT = 500
-        const val SOCKET_PORT = 8032
-        const val DATAGRAM_PORT = 8034
-        const val DELAY_CREATION = 0.1f
+/**
+ * The utility class for server.
+ */
+public final class ServerUtility {
 
-        // time in minutes
-        const val AVERAGE_LATENCY_MEASUREMENT_INTERVAL = 1
+  private static final int CONVERT_TO_MB = 1024 * 1024;
 
-        // time in seconds
-        const val SEND_MEASUREMENT_REQUEST_INTERVAL = 20
-        const val NUMBER_OF_PLAYERS = 100
-        const val ONE_SECOND_EXPECT_RECEIVE_PACKETS = 60
-        const val ONE_MINUTE_EXPECT_RECEIVE_PACKETS = ONE_SECOND_EXPECT_RECEIVE_PACKETS * 60 * 100
-    }
+  private ServerUtility() {
+    throw new UnsupportedOperationException();
+  }
 
-    init {
-        throw UnsupportedOperationException()
-    }
+  public static float convertBytesToMB(long bytes) {
+    return (float) bytes / CONVERT_TO_MB;
+  }
 }

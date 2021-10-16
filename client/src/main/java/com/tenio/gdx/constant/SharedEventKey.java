@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2016-2020 kong <congcoi123@gmail.com>
+Copyright (c) 2016-2021 kong <congcoi123@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,30 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package com.tenio.gdx.network.message.pool;
 
-/**
- * In an application, you can have resources that are limited or time-consuming
- * to create a new one. A solution is to create a limited resource once and
- * reuse it. The object pool design will have the mechanism to create a bulk of
- * objects to pooling use. If the requirements of resources increases, the
- * current bulk's size will be also automatically increased.
- * 
- * @author kong
- * 
- */
-public interface IElementPool<Element> {
+package com.tenio.gdx.constant;
 
-	/**
-	 * @return Returns an element in the pool
-	 */
-	Element get();
+public final class SharedEventKey {
 
-	/**
-	 * When you finished using an element, repay (free) it for the reusing
-	 * 
-	 * @param element the finished using element
-	 */
-	void repay(Element element);
+  public static final String KEY_PLAYER_LOGIN = "u";
+  public static final String KEY_ALLOW_TO_ATTACH = "a";
+  public static final String KEY_CLIENT_SERVER_ECHO = "e";
+  public static final String KEY_INTEGER_ARRAY = "i";
+  public static final String KEY_PLAYER_POSITION = "p";
+  public static final String KEY_PLAYER_REQUEST_NEIGHBOURS = "r";
+  public static final String KEY_PLAYER_GET_RESPONSE = "rr";
 
+  private SharedEventKey() {
+    throw new UnsupportedOperationException("This class does not support to create a new "
+        + "instance");
+  }
 }

@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2016-2020 kong <congcoi123@gmail.com>
+Copyright (c) 2016-2021 kong <congcoi123@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,24 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
 package com.tenio.gdx.network;
 
-import com.tenio.gdx.network.entity.TObject;
+import com.tenio.core.entity.data.ServerMessage;
 
 /**
  * This interface helps you listen to all messages these came from the server's
- * UDP port.
- * 
- * @author kong
- *
+ * TCP port.
  */
-public interface IDatagramListener {
+public interface SocketListener {
 
-	/**
-	 * Listen for a new message
-	 * 
-	 * @param message the received message @see {@link TObject}
-	 */
-	void onReceivedUDP(TObject message);
-
+  /**
+   * Listen for a new message.
+   *
+   * @param message the received message
+   */
+  void onReceivedTCP(ServerMessage message);
 }

@@ -403,6 +403,7 @@ class World(// local copy of client window dimensions
             // Set the unique id for the big guy
             if (a == 0) {
                 pVehicle.id = "dragon"
+                pVehicle.setPosition((clientX / 2) * 1F, (clientY / 2) * 1F)
             }
             pVehicle.behavior.setFlockingOn()
             vehicles.add(pVehicle)

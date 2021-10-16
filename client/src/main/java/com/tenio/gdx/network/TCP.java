@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2016-2020 kong <congcoi123@gmail.com>
+Copyright (c) 2016-2021 kong <congcoi123@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,164 +21,151 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
 package com.tenio.gdx.network;
 
+import com.tenio.common.data.ZeroObject;
+import com.tenio.common.data.implement.ZeroObjectImpl;
+import com.tenio.core.entity.data.ServerMessage;
+import com.tenio.core.network.entity.packet.Packet;
+import com.tenio.core.network.entity.packet.implement.PacketImpl;
+import com.tenio.core.network.entity.session.Session;
+import com.tenio.core.network.entity.session.implement.SessionImpl;
+import com.tenio.core.network.zero.codec.compression.DefaultBinaryPacketCompressor;
+import com.tenio.core.network.zero.codec.decoder.BinaryPacketDecoder;
+import com.tenio.core.network.zero.codec.decoder.DefaultBinaryPacketDecoder;
+import com.tenio.core.network.zero.codec.decoder.PacketDecoderResultListener;
+import com.tenio.core.network.zero.codec.encoder.BinaryPacketEncoder;
+import com.tenio.core.network.zero.codec.encoder.DefaultBinaryPacketEncoder;
+import com.tenio.core.network.zero.codec.encryption.DefaultBinaryPacketEncrypter;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.tenio.gdx.constant.Constants;
-import com.tenio.gdx.network.entity.TObject;
-import com.tenio.gdx.network.message.MessagePacker;
-import com.tenio.gdx.network.message.MsgPackConverter;
-
 /**
  * Create an object for handling a socket connection. It is used to send
  * messages to a server or receive messages from that one.
- * 
- * @author kong
- * 
  */
-public class TCP {
+public final class TCP implements PacketDecoderResultListener {
 
-	/**
-	 * @see ISocketListener
-	 */
-	private ISocketListener __listener;
-	/**
-	 * @see Future
-	 */
-	private Future<?> __future;
-	/**
-	 * @see Socket
-	 */
-	private Socket __socket;
-	/**
-	 * @see DataOutputStream
-	 */
-	private DataOutputStream __out;
-	/**
-	 * @see DataInputStream
-	 */
-	private DataInputStream __in;
-	/**
-	 * The size of the received packet
-	 */
-	private short __dataSize = 0;
-	/**
-	 * This flag is used to determine how many numbers of received bytes can be used
-	 * for one packet's header (that contains the packet's length)
-	 */
-	private boolean __recvHeader = true;
+  private static final int DEFAULT_BYTE_BUFFER_SIZE = 10240;
+  private static final String LOCAL_HOST = "localhost";
 
-	/**
-	 * Listen in a port on the local machine
-	 * 
-	 * @param port the desired port
-	 */
-	public TCP(int port) {
-		try {
-			__socket = new Socket("localhost", port);
-			__out = new DataOutputStream(__socket.getOutputStream());
-			__in = new DataInputStream(__socket.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+  private SocketListener socketListener;
+  private Future<?> future;
+  private Socket socket;
+  private DataOutputStream dataOutputStream;
+  private DataInputStream dataInputStream;
+  private ByteArrayOutputStream byteArrayOutputStream;
+  private Session session;
+  private BinaryPacketEncoder binaryPacketEncoder;
+  private BinaryPacketDecoder binaryPacketDecoder;
 
-	/**
-	 * Send a message to the server
-	 * 
-	 * @param message the desired message @see {@link TObject}
-	 */
-	public void send(TObject message) {
-		// convert message object to bytes data
-		byte[] pack = MsgPackConverter.serialize(message);
-		// attach the packet's length to packet's header
-		byte[] bytes = MessagePacker.pack(pack);
-		try {
-			__out.write(bytes);
-			__out.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+  /**
+   * Listen in a port on the local machine.
+   *
+   * @param port the desired port
+   */
+  public TCP(int port) {
+    try {
+      socket = new Socket(LOCAL_HOST, port);
+      dataOutputStream = new DataOutputStream(socket.getOutputStream());
+      dataInputStream = new DataInputStream(socket.getInputStream());
+      byteArrayOutputStream = new ByteArrayOutputStream();
 
-	/**
-	 * Listen for messages that came from the server
-	 * 
-	 * @param listener @see {@link ISocketListener}
-	 */
-	public void receive(ISocketListener listener) {
-		__listener = listener;
-		ExecutorService executorService = Executors.newSingleThreadExecutor();
-		__future = executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				byte[] buffer = new byte[10240];
-				try {
-					while (__in.read(buffer) > 0) {
-						__onRecvData(buffer);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-					return;
-				}
-			}
-		});
-	}
+      session = SessionImpl.newInstance();
+      session.createPacketSocketHandle();
 
-	private void __onRecvData(byte[] bytes) {
-		if (bytes.length <= 0) {
-			return;
-		}
+      DefaultBinaryPacketCompressor binaryCompressor = new DefaultBinaryPacketCompressor();
+      DefaultBinaryPacketEncrypter binaryEncrypter = new DefaultBinaryPacketEncrypter();
 
-		if (__recvHeader) {
-			__updateRecvHeaderData(bytes);
-		} else {
-			__updateRecvData(bytes);
-		}
-	}
+      binaryPacketEncoder = new DefaultBinaryPacketEncoder();
+      binaryPacketEncoder.setCompressor(binaryCompressor);
+      binaryPacketEncoder.setEncrypter(binaryEncrypter);
 
-	private void __updateRecvHeaderData(byte[] bytes) {
-		if (bytes.length >= Constants.HEADER_BYTES) { // header length
-			byte[] header = Arrays.copyOfRange(bytes, 0, Constants.HEADER_BYTES);
-			__dataSize = MessagePacker.byteToShort(header); // network to host short
-			__recvHeader = false;
-			// package = |2 bytes header| <content bytes> |
-			byte[] data = Arrays.copyOfRange(bytes, Constants.HEADER_BYTES, __dataSize + Constants.HEADER_BYTES);
-			__onRecvData(data); // recursion
-		}
-	}
+      binaryPacketDecoder = new DefaultBinaryPacketDecoder();
+      binaryPacketDecoder.setCompressor(binaryCompressor);
+      binaryPacketDecoder.setEncrypter(binaryEncrypter);
+      binaryPacketDecoder.setResultListener(this);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-	private void __updateRecvData(byte[] bytes) {
-		if (bytes.length >= __dataSize) {
-			__onRecvMessage(bytes);
-			__recvHeader = true; // reset header count
-		}
-	}
+  /**
+   * Send a message to the server.
+   *
+   * @param message the desired message
+   */
+  public void send(ServerMessage message) {
+    // convert message object to bytes data
+    Packet packet = PacketImpl.newInstance();
+    packet.setData(message.getData().toBinary());
+    packet = binaryPacketEncoder.encode(packet);
+    // attach the packet's length to packet's header
+    byte[] bytes = packet.getData();
+    try {
+      dataOutputStream.write(bytes);
+      dataOutputStream.flush();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-	private void __onRecvMessage(byte[] bytes) {
-		// convert a received array of bytes to a message
-		TObject message = MsgPackConverter.unserialize(bytes);
-		__listener.onReceivedTCP(message);
-	}
+  /**
+   * Listen for messages that came from the server.
+   *
+   * @param listener the socket listener
+   */
+  public void receive(SocketListener listener) {
+    socketListener = listener;
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    future = executorService.submit(() -> {
+      byte[] binary = new byte[DEFAULT_BYTE_BUFFER_SIZE];
+      int readBytes = -1;
+      try {
+        while ((readBytes = dataInputStream.read(binary, 0, binary.length)) != -1) {
+          byteArrayOutputStream.reset();
+          byteArrayOutputStream.write(binary, 0, readBytes);
+          binaryPacketDecoder.decode(session, byteArrayOutputStream.toByteArray());
+        }
+      } catch (IOException | RuntimeException e) {
+        e.printStackTrace();
+        return;
+      }
+    });
+  }
 
-	/**
-	 * Close this connection
-	 */
-	public void close() {
-		try {
-			__socket.close();
-			__future.cancel(true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+  /**
+   * Close this connection.
+   */
+  public void close() {
+    try {
+      socket.close();
+      future.cancel(true);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
+  @Override
+  public void resultFrame(Session session, byte[] binary) {
+    ZeroObject data = ZeroObjectImpl.newInstance(binary);
+    socketListener.onReceivedTCP(ServerMessage.newInstance().setData(data));
+  }
+
+  @Override
+  public void updateDroppedPackets(long numberPackets) {
+    // do nothing
+  }
+
+  @Override
+  public void updateReadPackets(long numberPackets) {
+    // do nothing
+  }
 }

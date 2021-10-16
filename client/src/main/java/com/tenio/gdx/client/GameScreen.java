@@ -28,32 +28,42 @@ import java.util.List;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.utils.Array;
+import com.tenio.common.data.ZeroObject;
+import com.tenio.common.data.implement.ZeroObjectImpl;
+import com.tenio.core.entity.data.ServerMessage;
 import com.tenio.gdx.c2engine.asset.Asset;
 import com.tenio.gdx.c2engine.asset.AssetManageable;
 import com.tenio.gdx.c2engine.asset.FramesGenerator;
 import com.tenio.gdx.c2engine.screen.XScreen;
 import com.tenio.gdx.c2engine.sprite.SpriteAnimation;
-import com.tenio.gdx.network.IDatagramListener;
-import com.tenio.gdx.network.ISocketListener;
+import com.tenio.gdx.constant.Constants;
+import com.tenio.gdx.constant.SharedEventKey;
+import com.tenio.gdx.constant.UdpEstablishedState;
+import com.tenio.gdx.network.DatagramListener;
+import com.tenio.gdx.network.SocketListener;
 import com.tenio.gdx.network.TCP;
 import com.tenio.gdx.network.UDP;
-import com.tenio.gdx.network.entity.TArray;
-import com.tenio.gdx.network.entity.TObject;
 
 /**
  * 
  * @author kong
  *
  */
-public class GameScreen extends XScreen implements AssetManageable, ISocketListener, IDatagramListener {
+public class GameScreen extends XScreen implements AssetManageable, SocketListener, DatagramListener {
 	/**
 	 * @see TCP
 	 */
-	private TCP __tcp;
+	private TCP tcp;
 	/**
 	 * @see UDP
 	 */
-	private UDP __udp;
+	private UDP udp;
+	
+	private String playerName = "kong";
+	
+	private int lastPositionX = 0;
+	
+	private boolean flip = false;
 
 	/**
 	 * An array of all entities
@@ -61,58 +71,76 @@ public class GameScreen extends XScreen implements AssetManageable, ISocketListe
 	private List<SpriteAnimation> __spriteAnimations = new ArrayList<SpriteAnimation>();
 
 	public GameScreen() {
-		// listen to ports
-		__tcp = new TCP(8032);
-		__tcp.receive(this);
+	    // create a new TCP object and listen for this port
+	    tcp = new TCP(Constants.SOCKET_PORT);
+	    tcp.receive(this);
 
-		__udp = new UDP(8031);
-		__udp.receive(this);
+	    // create a new UDP object and listen for this port
+	    udp = new UDP(Constants.DATAGRAM_PORT);
+	    udp.receive(this);
 
-		// send a login request
-		TObject message = new TObject();
-		message.put("u", "kong");
-		__tcp.send(message);
-		System.out.println("Login Request -> " + message);
+	    // send a login request
+	    sendLoginRequest();
 
 	}
 
 	// networking
 	@Override
-	public void onReceivedTCP(TObject message) {
-		System.err.println("[RECV FROM SERVER TCP] -> " + message);
-
-		switch ((String) message.get("c")) {
-		case "udp": {
-			// now you are allowed to send a request for UDP connection
-			TObject request = new TObject();
-			request.put("u", "kong");
-			__udp.send(request);
-			System.out.println("Request UDP Connection -> " + request);
-		}
-			break;
-
-		case "udp-done": {
-			// UDP connection is established successful, now you're in conversation
-			System.out.println("Conversation ...");
-		}
-			break;
-
-		}
-	}
-
-	// networking
-	@Override
-	public void onReceivedUDP(TObject message) {
-		// System.err.println("Received UDP message -> " + message);
+	public void onReceivedTCP(ServerMessage message) {
 		
-		TArray transform = message.getTArray("p");
-		int index = transform.getInt(0);
-		int positionX = transform.getInt(1);
-		int positionY = transform.getInt(2);
+		var data = (ZeroObject) message.getData();
+	    if (data.containsKey(SharedEventKey.KEY_ALLOW_TO_ATTACH)) {
+	      switch (data.getByte(SharedEventKey.KEY_ALLOW_TO_ATTACH)) {
+	        case UdpEstablishedState.ALLOW_TO_ATTACH: {
+	          // now you can send request for UDP connection request
+	          var sendData =
+	              ZeroObjectImpl.newInstance().putString(SharedEventKey.KEY_PLAYER_LOGIN, playerName);
+	          var request = ServerMessage.newInstance().setData(sendData);
+	          udp.send(request);
 
-		// a naive synchronous for testing ...
-		__spriteAnimations.get(index).setCenterXY(positionX, 500 - positionY);
+	          System.out.println("Request UDP Connection -> " + request);
+	        }
+	        break;
 
+	        case UdpEstablishedState.ATTACHED: {
+	        	System.out.println("Conversation ...");
+	          
+	        }
+	        break;
+
+	      }
+	    }
+	}
+
+	// networking
+	@Override
+	public void onReceivedUDP(ServerMessage message) {
+		// System.err.println("Received UDP message -> " + message);
+		var data = (ZeroObject) message.getData();
+		
+		if (data.containsKey(SharedEventKey.KEY_PLAYER_GET_RESPONSE)) {
+			List<Integer> transform = (List<Integer>) data.getIntegerArray(SharedEventKey.KEY_PLAYER_GET_RESPONSE);
+			int index = transform.get(0);
+			int positionX = transform.get(1);
+			int positionY = transform.get(2);
+			
+			if (lastPositionX > positionX) {
+				if (!flip) {
+					__spriteAnimations.get(index).setFlipX(true);
+					flip = true;
+				}
+			} else {
+				if (flip) {
+					__spriteAnimations.get(index).setFlipX(false);
+					flip = false;
+				}
+			}
+
+			// a naive synchronous for testing ...
+			__spriteAnimations.get(index).setCenterXY(positionX, 500 - positionY);
+			
+			lastPositionX = positionX;
+		}
 	}
 
 	// rendering
@@ -126,7 +154,7 @@ public class GameScreen extends XScreen implements AssetManageable, ISocketListe
 			SpriteAnimation spriteAnimationSimple = new SpriteAnimation(
 					FramesGenerator.getFramesFromTexture(Assets.TX_TEST_DRAGON, 1, 6));
 			if (i == 99) {
-				spriteAnimationSimple.resize(0.5f);
+				spriteAnimationSimple.resize(0.3f);
 				spriteAnimationSimple.start(0.1f, Animation.LOOP);
 			} else {
 				spriteAnimationSimple.resize(0.1f);
@@ -190,5 +218,11 @@ public class GameScreen extends XScreen implements AssetManageable, ISocketListe
 			spriteAnimation.update(delta);
 		});
 	}
+	
+	  private void sendLoginRequest() {
+		    var data = ZeroObjectImpl.newInstance();
+		    data.putString(SharedEventKey.KEY_PLAYER_LOGIN, playerName);
+		    tcp.send(ServerMessage.newInstance().setData(data));
+		  }
 
 }

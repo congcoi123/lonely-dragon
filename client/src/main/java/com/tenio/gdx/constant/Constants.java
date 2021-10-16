@@ -23,8 +23,6 @@ THE SOFTWARE.
 */
 package com.tenio.gdx.constant;
 
-import com.tenio.gdx.network.message.pool.IElementPool;
-
 /**
  * All base constants' values for the server are defined here. This class should
  * not be modified.
@@ -66,5 +64,8 @@ public final class Constants {
 	 * number of elements will be added. @see {@link IElementPool}
 	 */
 	public static final int ADD_ELEMENT_POOL = 10;
+
+	  public static final int SOCKET_PORT = 8032;
+	  public static final int DATAGRAM_PORT = 8034;
 
 }

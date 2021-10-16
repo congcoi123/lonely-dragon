@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2016-2020 kong <congcoi123@gmail.com>
+Copyright (c) 2016-2021 kong <congcoi123@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,113 +21,120 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
 package com.tenio.gdx.network;
 
+import com.tenio.common.data.ZeroObject;
+import com.tenio.common.data.implement.ZeroObjectImpl;
+import com.tenio.common.utility.OsUtility;
+import com.tenio.core.entity.data.ServerMessage;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.StandardSocketOptions;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.tenio.gdx.network.entity.TObject;
-import com.tenio.gdx.network.message.MsgPackConverter;
-
 /**
  * Create an object for handling a Datagram socket connection. It is used to
  * send messages to a server or receive messages from that one.
- * 
- * @author kong
- * 
  */
-public class UDP {
+public final class UDP {
 
-	/**
-	 * @see Future
-	 */
-	private Future<?> __future;
-	/**
-	 * @see DatagramSocket
-	 */
-	private DatagramSocket __socket;
-	/**
-	 * @see InetAddress
-	 */
-	private InetAddress __address;
-	/**
-	 * The desired port for listening
-	 */
-	private int __port;
+  private static final int DEFAULT_BYTE_BUFFER_SIZE = 10240;
+  private static final String BROADCAST_ADDRESS = "0.0.0.0";
+  /**
+   * The desired port for listening.
+   */
+  private final int __port;
+  private Future<?> future;
+  private DatagramSocket datagramSocket;
+  private InetAddress inetAddress;
 
-	/**
-	 * Listen in a port on the local machine
-	 * 
-	 * @param port the desired port
-	 */
-	public UDP(int port) {
-		try {
-			__socket = new DatagramSocket();
-		} catch (SocketException e) {
-			e.printStackTrace();
-		}
-		try {
-			__address = InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		__port = port;
-	}
+  /**
+   * Listen in a port on the local machine.
+   *
+   * @param port the desired port
+   */
+  public UDP(int port, boolean broadcast) {
+    try {
+      if (broadcast) {
+        datagramSocket = new DatagramSocket(port, InetAddress.getByName(BROADCAST_ADDRESS));
+        datagramSocket.setBroadcast(true);
+        if (OsUtility.getOperatingSystemType() == OsUtility.OsType.Windows) {
+          datagramSocket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        } else {
+          datagramSocket.setOption(StandardSocketOptions.SO_REUSEPORT, true);
+        }
+      } else {
+        datagramSocket = new DatagramSocket();
+      }
+    } catch (SocketException e) {
+      e.printStackTrace();
+    } catch (UnknownHostException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    try {
+      inetAddress = InetAddress.getLocalHost();
+    } catch (UnknownHostException e) {
+      e.printStackTrace();
+    }
+    __port = port;
+  }
 
-	/**
-	 * Send a message to the server
-	 * 
-	 * @param message the desired message @see {@link TObject}
-	 */
-	public void send(TObject message) {
-		byte[] pack = MsgPackConverter.serialize(message);
-		DatagramPacket request = new DatagramPacket(pack, pack.length, __address, __port);
-		try {
-			__socket.send(request);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+  public UDP(int port) {
+    this(port, false);
+  }
 
-	/**
-	 * Listen for messages that came from the server
-	 * 
-	 * @param listener @see {@link IDatagramListener}
-	 */
-	public void receive(IDatagramListener listener) {
-		ExecutorService executorService = Executors.newSingleThreadExecutor();
-		__future = executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						byte[] buffer = new byte[10240];
-						DatagramPacket response = new DatagramPacket(buffer, buffer.length);
-						__socket.receive(response);
-						TObject message = MsgPackConverter.unserialize(buffer);
-						listener.onReceivedUDP(message);
-					} catch (IOException e) {
-						e.printStackTrace();
-						return;
-					}
-				}
-			}
-		});
-	}
+  /**
+   * Send a message to the server.
+   *
+   * @param message the desired message
+   */
+  public void send(ServerMessage message) {
+    byte[] pack = message.getData().toBinary();
+    DatagramPacket request = new DatagramPacket(pack, pack.length, inetAddress, __port);
+    try {
+      datagramSocket.send(request);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-	/**
-	 * Close this connection
-	 */
-	public void close() {
-		__socket.close();
-		__future.cancel(true);
-	}
+  /**
+   * Listen for messages that came from the server.
+   *
+   * @param listener
+   */
+  public void receive(DatagramListener listener) {
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    future = executorService.submit(() -> {
+      while (true) {
+        try {
+          byte[] buffer = new byte[DEFAULT_BYTE_BUFFER_SIZE];
+          DatagramPacket response = new DatagramPacket(buffer, buffer.length);
+          datagramSocket.receive(response);
+          ZeroObject data = ZeroObjectImpl.newInstance(buffer);
+          listener.onReceivedUDP(ServerMessage.newInstance().setData(data));
+        } catch (IOException e) {
+          e.printStackTrace();
+          return;
+        }
+      }
+    });
+  }
 
+  /**
+   * Close this connection.
+   */
+  public void close() {
+    datagramSocket.close();
+    future.cancel(true);
+  }
 }

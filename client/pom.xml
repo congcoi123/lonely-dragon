@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.github.congcoi123</groupId>
-	<artifactId>tenio-libgdx</artifactId>
-	<version>1.0.0</version>
+	<groupId>com.congcoi123.lonely.dragon</groupId>
+	<artifactId>client</artifactId>
+	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -36,7 +36,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<org.msgpack.version>0.6.12</org.msgpack.version>
+		<io.github.congcoi123.tenio.version>0.0.1</io.github.congcoi123.tenio.version>
 
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -57,9 +57,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>org.msgpack</groupId>
-			<artifactId>msgpack</artifactId>
-			<version>${org.msgpack.version}</version>
+			<groupId>io.github.congcoi123</groupId>
+			<artifactId>tenio-core</artifactId>
+			<version>${io.github.congcoi123.tenio.version}</version>
 		</dependency>
 	</dependencies>
 </project>
