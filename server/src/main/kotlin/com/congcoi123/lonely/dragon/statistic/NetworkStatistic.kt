@@ -23,54 +23,58 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.statistic
 
-import java.util.ArrayList
-
 class NetworkStatistic private constructor() {
-    private val latencyRecorder: MutableList<Long>
-    private val fpsRecorder: MutableList<Int>
-    private val lostPacketRecorder: MutableList<Double>
+
+    private val latencyRecorder = mutableListOf<Long>()
+    private val fpsRecorder = mutableListOf<Int>()
+    private val lostPacketRecorder = mutableListOf<Double>()
+
     val latencyAverage: Double
-        get() {
+        get() =
             synchronized(latencyRecorder) {
-                var average: Long = 0
+                var average = 0L
                 val size = latencyRecorder.size
                 for (i in 0 until size) {
                     average += latencyRecorder[i]
                 }
                 return average.toDouble() / size.toDouble()
             }
-        }
-    val latencySize: Int
-        get() {
-            synchronized(latencyRecorder) { return latencyRecorder.size }
-        }
 
-    fun addLatency(latency: Long) {
-        synchronized(latencyRecorder) { latencyRecorder.add(latency) }
-    }
+    val latencySize: Int
+        get() =
+            synchronized(latencyRecorder) {
+                return latencyRecorder.size
+            }
+
+    fun addLatency(latency: Long) =
+        synchronized(latencyRecorder) {
+            latencyRecorder.add(latency)
+        }
 
     val fpsAverage: Double
-        get() {
+        get() =
             synchronized(fpsRecorder) {
-                var average = 0
+                var average = 0.0
                 val size = fpsRecorder.size
                 for (i in 0 until size) {
                     average += fpsRecorder[i]
                 }
-                return average.toDouble() / size.toDouble()
+                return average / size.toDouble()
             }
-        }
-    val fpsSize: Int
-        get() {
-            synchronized(fpsRecorder) { return fpsRecorder.size }
-        }
 
-    fun addFps(fps: Int) {
-        synchronized(fpsRecorder) { fpsRecorder.add(fps) }
-    }
+    val fpsSize: Int
+        get() =
+            synchronized(fpsRecorder) {
+                return fpsRecorder.size
+            }
+
+    fun addFps(fps: Int) =
+        synchronized(fpsRecorder) {
+            fpsRecorder.add(fps)
+        }
 
     val lostPacketsAverage: Double
-        get() {
+        get() =
             synchronized(lostPacketRecorder) {
                 var average = 0.0
                 val size = lostPacketRecorder.size
@@ -79,26 +83,19 @@ class NetworkStatistic private constructor() {
                 }
                 return average / size.toDouble()
             }
-        }
-    val lostPacketsSize: Int
-        get() {
-            synchronized(lostPacketRecorder) { return lostPacketRecorder.size }
-        }
 
-    fun addLostPackets(packets: Double) {
-        synchronized(lostPacketRecorder) { lostPacketRecorder.add(packets) }
-    }
+    val lostPacketsSize: Int
+        get() =
+            synchronized(lostPacketRecorder) {
+                return lostPacketRecorder.size
+            }
+
+    fun addLostPackets(packets: Double) =
+        synchronized(lostPacketRecorder) {
+            lostPacketRecorder.add(packets)
+        }
 
     companion object {
-        @JvmStatic
-        fun newInstance(): NetworkStatistic {
-            return NetworkStatistic()
-        }
-    }
-
-    init {
-        latencyRecorder = ArrayList()
-        fpsRecorder = ArrayList()
-        lostPacketRecorder = ArrayList()
+        fun newInstance() = NetworkStatistic()
     }
 }

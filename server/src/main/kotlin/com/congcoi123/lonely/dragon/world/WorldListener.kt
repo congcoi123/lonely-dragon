@@ -27,6 +27,6 @@ import com.congcoi123.lonely.dragon.entity.Vehicle
 
 interface WorldListener {
     val ccu: Int
-    fun updateVehiclePosition(vehicle: Vehicle?)
-    fun responseVehicleNeighbours(playerName: String?, neighbours: List<Vehicle?>?, currentFps: Int)
+    fun updateVehiclePosition(vehicle: Vehicle)
+    fun responseVehicleNeighbours(playerName: String, neighbours: List<Vehicle>, currentFps: Int)
 }

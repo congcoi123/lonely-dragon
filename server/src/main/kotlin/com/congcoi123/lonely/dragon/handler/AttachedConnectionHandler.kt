@@ -23,16 +23,17 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.handler
 
-import com.tenio.common.bootstrap.annotation.Component
-import com.tenio.core.extension.AbstractExtension
-import com.tenio.core.extension.events.EventAttachedConnectionResult
-import com.tenio.core.entity.Player
-import com.tenio.core.entity.define.result.AttachedConnectionResult
 import com.congcoi123.lonely.dragon.utility.SharedEventKey
 import com.congcoi123.lonely.dragon.utility.UdpEstablishedState
+import com.tenio.common.bootstrap.annotation.Component
+import com.tenio.core.entity.Player
+import com.tenio.core.entity.define.result.AttachedConnectionResult
+import com.tenio.core.extension.AbstractExtension
+import com.tenio.core.extension.events.EventAttachedConnectionResult
 
 @Component
 class AttachedConnectionHandler : AbstractExtension(), EventAttachedConnectionResult {
+
     override fun handle(player: Player, result: AttachedConnectionResult) {
         if (result == AttachedConnectionResult.SUCCESS) {
             val data = `object`().putByte(SharedEventKey.KEY_ALLOW_TO_ATTACH, UdpEstablishedState.ATTACHED)

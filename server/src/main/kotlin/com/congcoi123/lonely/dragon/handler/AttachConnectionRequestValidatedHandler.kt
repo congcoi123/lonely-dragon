@@ -23,16 +23,17 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.handler
 
+import com.congcoi123.lonely.dragon.utility.SharedEventKey
 import com.tenio.common.bootstrap.annotation.Component
+import com.tenio.common.data.ZeroObject
+import com.tenio.core.entity.Player
+import com.tenio.core.entity.data.ServerMessage
 import com.tenio.core.extension.AbstractExtension
 import com.tenio.core.extension.events.EventAttachConnectionRequestValidation
-import com.tenio.core.entity.data.ServerMessage
-import com.tenio.core.entity.Player
-import com.tenio.common.data.ZeroObject
-import com.congcoi123.lonely.dragon.utility.SharedEventKey
 
 @Component
 class AttachConnectionRequestValidatedHandler : AbstractExtension(), EventAttachConnectionRequestValidation {
+
     override fun handle(message: ServerMessage): Player {
         val data = message.data as ZeroObject
         return api().getPlayerByName(data.getString(SharedEventKey.KEY_PLAYER_LOGIN))

@@ -23,16 +23,17 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.handler
 
-import com.tenio.common.bootstrap.annotation.Component
-import com.tenio.core.extension.AbstractExtension
-import com.tenio.core.extension.events.EventPlayerLoggedinResult
-import com.tenio.core.entity.Player
-import com.tenio.core.entity.define.result.PlayerLoggedInResult
 import com.congcoi123.lonely.dragon.utility.SharedEventKey
 import com.congcoi123.lonely.dragon.utility.UdpEstablishedState
+import com.tenio.common.bootstrap.annotation.Component
+import com.tenio.core.entity.Player
+import com.tenio.core.entity.define.result.PlayerLoggedInResult
+import com.tenio.core.extension.AbstractExtension
+import com.tenio.core.extension.events.EventPlayerLoggedinResult
 
 @Component
 class PlayerLoggedInHandler : AbstractExtension(), EventPlayerLoggedinResult {
+
     override fun handle(player: Player, result: PlayerLoggedInResult) {
         if (result == PlayerLoggedInResult.SUCCESS) {
             val data = `object`().putByte(SharedEventKey.KEY_ALLOW_TO_ATTACH, UdpEstablishedState.ALLOW_TO_ATTACH)

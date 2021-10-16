@@ -83,18 +83,17 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     // the steering force created by the combined effect of all
     // the selected behaviors
     var force = Vector2.newInstance()
-        private set
 
     // these can be used to keep track of friends, pursuers, or prey
-    private var targetAgent1: Vehicle?
-    private var targetAgent2: Vehicle?
+    private lateinit var targetAgent1: Vehicle
+    private lateinit var targetAgent2: Vehicle
 
     // length of the 'detection box' utilized in obstacle avoidance
     var detectBoxLength: Float
         private set
 
     // any offset used for formations or offset pursuit
-    var offset: Vector2? = null
+    private lateinit var offset: Vector2
 
     // binary flags to indicate whether a behavior should be active
     private var behaviorFlag = 0
@@ -303,7 +302,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
      * Given a vector of obstacles, this method returns a steering force that will
      * prevent the agent colliding with the closest obstacle.
      */
-    private fun doObstacleAvoidance(obstacles: MutableList<BaseGameEntity?>): Vector2 {
+    private fun doObstacleAvoidance(obstacles: MutableList<BaseGameEntity>): Vector2 {
         // the detection box length is proportional to the agent's velocity
         detectBoxLength = (paramLoader?.MIN_DETECTION_BOX_LENGTH?.plus(vehicle.speed / vehicle.maxSpeed * paramLoader.MIN_DETECTION_BOX_LENGTH)!!)
 
@@ -653,7 +652,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         return doArrive(midPoint, Deceleration.FAST)
     }
 
-    private fun doHide(hunter: Vehicle?, obstacles: MutableList<BaseGameEntity?>): Vector2 {
+    private fun doHide(hunter: Vehicle, obstacles: MutableList<BaseGameEntity>): Vector2 {
         var distToClosest = MathUtility.MAX_FLOAT
         var bestHidingSpot = Vector2.newInstance().zero()
         val it = obstacles.listIterator()
@@ -832,8 +831,8 @@ class SteeringBehavior(  // a pointer to the owner of this instance
                 paint.drawClosedShape(detectBox)
             } else {
                 detectBox = Transformation.pointsToWorldSpace(detectBox, vehicle.position,
-                        vehicle.smoothedHeading,
-                        Vector2.newInstance().set(vehicle.smoothedHeading).perpendicular())
+                        vehicle.getSmoothedHeading(),
+                        Vector2.newInstance().set(vehicle.getSmoothedHeading()).perpendicular())
                 paint.drawClosedShape(detectBox)
             }
 
@@ -843,9 +842,9 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
             // tag all obstacles within range of the box for processing
             vehicle.world.tagObstaclesWithinViewRange(vehicle, detectBoxLength)
-            val it: MutableListIterator<BaseGameEntity?> = vehicle.world.obstacles.listIterator()
-            while (it.hasNext()) {
-                val curOb = it.next()
+            val obstacles = vehicle.world.obstacles.listIterator()
+            while (obstacles.hasNext()) {
+                val curOb = obstacles.next()
                 // if the obstacle has been tagged within range proceed
                 if (curOb != null) {
                     if (curOb.isTagged) {
@@ -1255,18 +1254,6 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             return force
         }
 
-    fun setTargetAgent1(Agent: Vehicle?) {
-        targetAgent1 = Agent
-    }
-
-    fun setTargetAgent2(Agent: Vehicle?) {
-        targetAgent2 = Agent
-    }
-
-    fun setPath(path: List<Vector2?>?) {
-        this.path.wayPoints = path
-    }
-
     fun createRandomPath(numWaypoints: Int, mx: Int, my: Int, cx: Int, cy: Int) {
         path.createRandomPath(numWaypoints, mx.toFloat(), my.toFloat(), cx.toFloat(), cy.toFloat())
     }
@@ -1319,13 +1306,13 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         behaviorFlag = behaviorFlag or Behavior.FOLLOW_PATH.get()
     }
 
-    fun setInterposeOn(v1: Vehicle?, v2: Vehicle?) {
+    fun setInterposeOn(vehicle1: Vehicle, vehicle2: Vehicle) {
         behaviorFlag = behaviorFlag or Behavior.INTERPOSE.get()
-        targetAgent1 = v1
-        targetAgent2 = v2
+        targetAgent1 = vehicle1
+        targetAgent2 = vehicle2
     }
 
-    fun setOffsetPursuitOn(vehicle: Vehicle?, offset: Vector2?) {
+    fun setOffsetPursuitOn(vehicle: Vehicle, offset: Vector2) {
         behaviorFlag = behaviorFlag or Behavior.OFFSET_PURSUIT.get()
         this.offset = offset
         targetAgent1 = vehicle
@@ -1446,7 +1433,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     val isPursuitOn: Boolean
         get() = isBehavior(Behavior.PURSUIT)
 
-    fun setPursuitOn(vehicle: Vehicle?) {
+    fun setPursuitOn(vehicle: Vehicle) {
         behaviorFlag = behaviorFlag or Behavior.PURSUIT.get()
         targetAgent1 = vehicle
     }
@@ -1454,7 +1441,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     val isEvadeOn: Boolean
         get() = isBehavior(Behavior.EVADE)
 
-    fun setEvadeOn(vehicle: Vehicle?) {
+    fun setEvadeOn(vehicle: Vehicle) {
         behaviorFlag = behaviorFlag or Behavior.EVADE.get()
         targetAgent1 = vehicle
     }
@@ -1476,7 +1463,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     val isHideOn: Boolean
         get() = isBehavior(Behavior.HIDE)
 
-    fun setHideOn(vehicle: Vehicle?) {
+    fun setHideOn(vehicle: Vehicle) {
         behaviorFlag = behaviorFlag or Behavior.HIDE.get()
         targetAgent1 = vehicle
     }
@@ -1484,22 +1471,18 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     val isOffsetPursuitOn: Boolean
         get() = isBehavior(Behavior.OFFSET_PURSUIT)
 
-    fun getSensors(): List<Vector2> {
-        return sensors
-    }
-
     companion object {
         // the radius of the constraining circle for to wander behavior
-        const val WANDER_RADIUS = 1.2f
+        const val WANDER_RADIUS = 1.2F
 
         // distance to wander circle is projected in front of the agent
-        const val WANDER_DISTANCE = 2f
+        const val WANDER_DISTANCE = 2F
 
         // the maximum amount of displacement along the circle each frame
-        const val WANDER_JITTER_PER_SECOND = 80f
+        const val WANDER_JITTER_PER_SECOND = 80F
 
         // used in path following
-        const val WAYPOINT_SEEK_DISTANCE = 20f
+        const val WAYPOINT_SEEK_DISTANCE = 20F
     }
 
     init {
@@ -1514,8 +1497,6 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         wallDetectionSensorLength = paramLoader?.WALL_DETECTION_FEELER_LENGTH ?: 0F
         sensors = ArrayList(3)
         deceleration = Deceleration.NORMAL
-        targetAgent1 = null
-        targetAgent2 = null
         wanderDistance = WANDER_DISTANCE
         wanderJitter = WANDER_JITTER_PER_SECOND
         wanderRadius = WANDER_RADIUS

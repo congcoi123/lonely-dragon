@@ -23,17 +23,18 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.handler
 
+import com.congcoi123.lonely.dragon.utility.SharedEventKey
 import com.tenio.common.bootstrap.annotation.Component
-import com.tenio.core.extension.AbstractExtension
-import com.tenio.core.extension.events.EventConnectionEstablishedResult
+import com.tenio.common.data.ZeroObject
 import com.tenio.core.entity.data.ServerMessage
 import com.tenio.core.entity.define.result.ConnectionEstablishedResult
-import com.tenio.common.data.ZeroObject
+import com.tenio.core.extension.AbstractExtension
+import com.tenio.core.extension.events.EventConnectionEstablishedResult
 import com.tenio.core.network.entity.session.Session
-import com.congcoi123.lonely.dragon.utility.SharedEventKey
 
 @Component
 class ConnectionEstablishedHandler : AbstractExtension(), EventConnectionEstablishedResult {
+
     override fun handle(session: Session, message: ServerMessage, result: ConnectionEstablishedResult) {
         if (result == ConnectionEstablishedResult.SUCCESS) {
             val data = message.data as ZeroObject

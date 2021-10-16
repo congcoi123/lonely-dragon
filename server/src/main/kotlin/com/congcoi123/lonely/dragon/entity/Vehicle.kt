@@ -1,5 +1,8 @@
 package com.congcoi123.lonely.dragon.entity
 
+import com.congcoi123.lonely.dragon.behavior.SteeringBehavior
+import com.congcoi123.lonely.dragon.configuration.ParamLoader.Companion.instance
+import com.congcoi123.lonely.dragon.world.World
 import com.tenio.engine.fsm.entity.Telegram
 import com.tenio.engine.physic2d.common.MoveableEntity
 import com.tenio.engine.physic2d.graphic.Paint
@@ -7,21 +10,37 @@ import com.tenio.engine.physic2d.graphic.Renderable
 import com.tenio.engine.physic2d.math.Vector2
 import com.tenio.engine.physic2d.utility.SmootherVector
 import com.tenio.engine.physic2d.utility.Transformation
-import com.congcoi123.lonely.dragon.behavior.SteeringBehavior
-import com.congcoi123.lonely.dragon.configuration.ParamLoader.Companion.instance
-import com.congcoi123.lonely.dragon.world.World
 import java.awt.Color
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Definition of a simple vehicle that uses steering behaviors.
  */
-class Vehicle(// a pointer to the world data. So a vehicle can access any obstacle,
-        // path, wall or agent data
-    val world: World, position: Vector2?, rotation: Float, velocity: Vector2?, mass: Float,
+class Vehicle(
+    val world: World,
+    position: Vector2?,
+    rotation: Float,
+    velocity: Vector2?,
+    mass: Float,
     maxForce: Float,
-    maxSpeed: Float, maxTurnRate: Float, scale: Float) : MoveableEntity(position, scale, velocity, maxSpeed,
-        Vector2.valueOf(Math.sin(rotation.toDouble()).toFloat(), (-Math.cos(rotation.toDouble())).toFloat()), mass,
-        Vector2.valueOf(scale, scale), maxTurnRate, maxForce), Renderable {
+    maxSpeed: Float,
+    maxTurnRate: Float,
+    scale: Float
+) : MoveableEntity(
+    position,
+    scale,
+    velocity,
+    maxSpeed,
+    Vector2.valueOf(
+        sin(rotation.toDouble()).toFloat(),
+        (-cos(rotation.toDouble())).toFloat()
+    ),
+    mass,
+    Vector2.valueOf(scale, scale),
+    maxTurnRate,
+    maxForce
+), Renderable {
 
     // the steering behavior class
     val behavior: SteeringBehavior
@@ -29,26 +48,23 @@ class Vehicle(// a pointer to the world data. So a vehicle can access any obstac
     // some steering behaviors give jerky looking movement. The
     // following members are used to smooth the vehicle's heading
     private val headingSmoother: SmootherVector<Vector2>
-    val smoothedHeading = Vector2.newInstance()
+    private val smoothedHeading: Vector2 = Vector2.newInstance()
 
     // buffer for the vehicle shape
-    private val shape: MutableList<Vector2> = ArrayList()
+    private val shape = mutableListOf<Vector2>()
 
     // this vector represents the average of the vehicle's heading
     // vector smoothed over the last few frames
-    private var smoothedHeadingX = 0f
-    private var smoothedHeadingY = 0f
+    private var smoothedHeadingX = 0F
+    private var smoothedHeadingY = 0F
 
     // when true, smoothing is active
     var isSmoothing = false
         private set
 
-    /**
-     * @return time elapsed from last update
-     */
     // keeps a track of the most recent update time. (some
     // steering behaviors make use of this - see Wander)
-    var timeElapsed = 0f
+    var timeElapsed = 0F
         private set
 
     // index of vehicle in the list
@@ -59,8 +75,11 @@ class Vehicle(// a pointer to the world data. So a vehicle can access any obstac
      */
     private fun createShape() {
         val numVehicleVerts = 3
-        val vehicle = arrayOf(Vector2.valueOf(-1.0f, 0.6f), Vector2.valueOf(1.0f, 0.0f),
-                Vector2.valueOf(-1.0f, -0.6f))
+        val vehicle = arrayOf(
+            Vector2.valueOf(-1.0F, 0.6F),
+            Vector2.valueOf(1.0F, 0.0F),
+            Vector2.valueOf(-1.0F, -0.6F)
+        )
 
         // set up the vertex buffers and calculate the bounding radius
         for (vtx in 0 until numVehicleVerts) {
@@ -68,7 +87,6 @@ class Vehicle(// a pointer to the world data. So a vehicle can access any obstac
         }
     }
 
-    @JvmName("getSmoothedHeading1")
     fun getSmoothedHeading(): Vector2 {
         return smoothedHeading.set(smoothedHeadingX, smoothedHeadingY)
     }
@@ -77,7 +95,7 @@ class Vehicle(// a pointer to the world data. So a vehicle can access any obstac
         setSmoothedHeading(smoothed.x, smoothed.y)
     }
 
-    fun setSmoothedHeading(x: Float, y: Float) {
+    private fun setSmoothedHeading(x: Float, y: Float) {
         smoothedHeadingX = x
         smoothedHeadingY = y
     }
@@ -88,16 +106,6 @@ class Vehicle(// a pointer to the world data. So a vehicle can access any obstac
 
     fun toggleSmoothing() {
         isSmoothing = !isSmoothing
-    }
-
-    @OptIn(ExperimentalStdlibApi::class)
-    fun getASCIIValueOfString(question: String): Int {
-        var result = 0
-        val chars = question.toCharArray()
-        for (i in chars.indices) {
-            result += chars[i].code
-        }
-        return result
     }
 
     /**
@@ -131,7 +139,7 @@ class Vehicle(// a pointer to the world data. So a vehicle can access any obstac
         val position = velocity.mul(delta).add(position)
         setPosition(position)
 
-        // update the heading if the vehicle has a non zero velocity
+        // update the heading if the vehicle has a non-zero velocity
         if (getVelocity().lengthSqr > 0.00000001) {
             heading = getVelocity().normalize()
         }
@@ -170,13 +178,16 @@ class Vehicle(// a pointer to the world data. So a vehicle can access any obstac
         }
 
         // a vector to hold the transformed vertices
-        val shape: List<Vector2>
-        shape = if (isSmoothing) {
-            Transformation.pointsToWorldSpace(this.shape, position, getSmoothedHeading(),
-                    getSmoothedHeading().perpendicular(), scale)
+        val shape: List<Vector2> = if (isSmoothing) {
+            Transformation.pointsToWorldSpace(
+                this.shape, position, getSmoothedHeading(),
+                getSmoothedHeading().perpendicular(), scale
+            )
         } else {
-            Transformation.pointsToWorldSpace(this.shape, position, heading, side,
-                    scale)
+            Transformation.pointsToWorldSpace(
+                this.shape, position, heading, side,
+                scale
+            )
         }
         paint.drawClosedShape(shape)
 
@@ -197,7 +208,9 @@ class Vehicle(// a pointer to the world data. So a vehicle can access any obstac
         behavior = SteeringBehavior(this)
 
         // set up the smoother
-        headingSmoother = SmootherVector(instance!!.NUM_SAMPLES_FOR_SMOOTHING,
-                Vector2.newInstance())
+        headingSmoother = SmootherVector(
+            instance!!.NUM_SAMPLES_FOR_SMOOTHING,
+            Vector2.newInstance()
+        )
     }
 }

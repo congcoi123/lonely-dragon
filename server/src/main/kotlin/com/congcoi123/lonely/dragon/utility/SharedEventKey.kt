@@ -23,8 +23,6 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.utility
 
-import java.lang.UnsupportedOperationException
-
 class SharedEventKey private constructor() {
     companion object {
         const val KEY_PLAYER_LOGIN = "u"
@@ -37,7 +35,9 @@ class SharedEventKey private constructor() {
     }
 
     init {
-        throw UnsupportedOperationException("This class does not support to create a new "
-                + "instance")
+        throw UnsupportedOperationException(
+            "This class does not support to create a new "
+                    + "instance"
+        )
     }
 }

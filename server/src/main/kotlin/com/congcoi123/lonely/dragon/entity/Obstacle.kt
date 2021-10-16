@@ -23,22 +23,24 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.entity
 
+import com.tenio.engine.fsm.entity.Telegram
 import com.tenio.engine.physic2d.common.BaseGameEntity
+import com.tenio.engine.physic2d.graphic.Paint
 import com.tenio.engine.physic2d.graphic.Renderable
 import java.awt.Color
-import com.tenio.engine.fsm.entity.Telegram
-import com.tenio.engine.physic2d.graphic.Paint
 
 /**
  * Just a simple obstacle class.
  */
 class Obstacle(x: Float, y: Float, radius: Float) : BaseGameEntity(0, x, y, radius), Renderable {
+
     override fun render(paint: Paint) {
         paint.setPenColor(Color.BLACK)
         paint.drawCircle(positionX, positionY, boundingRadius)
     }
 
     override fun update(delta: Float) {}
+
     override fun handleMessage(msg: Telegram): Boolean {
         return false
     }

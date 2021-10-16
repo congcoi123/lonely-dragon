@@ -23,26 +23,21 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon
 
-import kotlin.Throws
-import kotlin.jvm.JvmStatic
-import com.congcoi123.lonely.dragon.world.World
 import com.congcoi123.lonely.dragon.constant.Example4Constant
+import com.congcoi123.lonely.dragon.world.World
 import com.tenio.engine.heartbeat.HeartBeatManagerImpl
-import java.lang.Exception
 
 /**
- * Only for testing the movement behavior of vehicles.
+ * Only for testing the movement behavior of dragons.
  */
-object LocalLonelyDragon {
-    @Throws(Exception::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        // Create a world
-        val world = World(Example4Constant.DESIGN_WIDTH, Example4Constant.DESIGN_HEIGHT)
-        // Enable debugger window
-        world.debug("[TenIO] Server Debugger : Movement Simulation")
-        val heartBeatManager = HeartBeatManagerImpl()
-        heartBeatManager.initialize(1)
-        heartBeatManager.create("world", world)
-    }
+class LocalLonelyDragon
+
+fun main(args: Array<String>) {
+    // Create a world
+    val world = World(Example4Constant.DESIGN_WIDTH, Example4Constant.DESIGN_HEIGHT)
+    // Enable debugger window
+    world.debug("Local Lonely Dragon")
+    val heartBeatManager = HeartBeatManagerImpl()
+    heartBeatManager.initialize(1)
+    heartBeatManager.create("world", world)
 }

@@ -23,22 +23,24 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.handler
 
-import com.tenio.core.extension.AbstractExtension
-import com.tenio.core.extension.events.EventReceivedMessageFromPlayer
+import com.congcoi123.lonely.dragon.constant.ServerEventKey
+import com.congcoi123.lonely.dragon.utility.ExampleMessage
+import com.congcoi123.lonely.dragon.utility.SharedEventKey
 import com.tenio.common.bootstrap.annotation.AutowiredAcceptNull
 import com.tenio.common.bootstrap.annotation.Component
-import com.tenio.engine.heartbeat.HeartBeatManager
+import com.tenio.common.data.ZeroObject
 import com.tenio.core.entity.Player
 import com.tenio.core.entity.data.ServerMessage
-import com.tenio.common.data.ZeroObject
-import com.congcoi123.lonely.dragon.utility.SharedEventKey
-import com.congcoi123.lonely.dragon.utility.ExampleMessage
-import com.congcoi123.lonely.dragon.constant.ServerEventKey
+import com.tenio.core.extension.AbstractExtension
+import com.tenio.core.extension.events.EventReceivedMessageFromPlayer
+import com.tenio.engine.heartbeat.HeartBeatManager
 
 @Component
 class ReceivedMessageFromPlayerHandler : AbstractExtension(), EventReceivedMessageFromPlayer {
+
     @AutowiredAcceptNull
     private val heartBeatManager: HeartBeatManager? = null
+
     override fun handle(player: Player, message: ServerMessage) {
         val data = message.data as ZeroObject
         if (data.containsKey(SharedEventKey.KEY_PLAYER_REQUEST_NEIGHBOURS)) {
@@ -46,7 +48,8 @@ class ReceivedMessageFromPlayerHandler : AbstractExtension(), EventReceivedMessa
             request.putContent(ServerEventKey.KEY_PLAYER_NAME, player.name)
             request.putContent(
                 ServerEventKey.KEY_PLAYER_REQUEST,
-                    data.getString(SharedEventKey.KEY_PLAYER_REQUEST_NEIGHBOURS))
+                data.getString(SharedEventKey.KEY_PLAYER_REQUEST_NEIGHBOURS)
+            )
             heartBeatManager!!.sendMessage("world", request)
         }
     }

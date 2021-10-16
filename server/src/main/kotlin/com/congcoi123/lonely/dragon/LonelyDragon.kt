@@ -24,16 +24,14 @@ THE SOFTWARE.
 package com.congcoi123.lonely.dragon
 
 import com.tenio.common.bootstrap.annotation.Bootstrap
-import kotlin.jvm.JvmStatic
 import com.tenio.core.ApplicationLauncher
 
 /**
- * This class makes a simple simulator for the physic 2d movement.
+ * This class makes a simple simulator for the dragons' movement.
  */
 @Bootstrap
-object LonelyDragon {
-    @JvmStatic
-    fun main(params: Array<String>) {
-        ApplicationLauncher.run(LonelyDragon::class.java, params)
-    }
+class LonelyDragon
+
+fun main(params: Array<String>) {
+    ApplicationLauncher.run(LonelyDragon::class.java, params)
 }

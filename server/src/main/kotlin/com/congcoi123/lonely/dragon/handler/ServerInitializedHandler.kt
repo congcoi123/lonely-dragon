@@ -23,58 +23,56 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.handler
 
+import com.congcoi123.lonely.dragon.constant.Example4Constant
+import com.congcoi123.lonely.dragon.entity.Vehicle
+import com.congcoi123.lonely.dragon.utility.SharedEventKey
+import com.congcoi123.lonely.dragon.world.World
+import com.congcoi123.lonely.dragon.world.WorldListener
 import com.tenio.common.bootstrap.annotation.AutowiredAcceptNull
 import com.tenio.common.bootstrap.annotation.Component
 import com.tenio.common.configuration.Configuration
 import com.tenio.core.extension.AbstractExtension
 import com.tenio.core.extension.events.EventServerInitialization
 import com.tenio.engine.heartbeat.HeartBeatManager
-import com.congcoi123.lonely.dragon.constant.Example4Constant
-import com.congcoi123.lonely.dragon.entity.Vehicle
-import com.congcoi123.lonely.dragon.world.World
-import com.congcoi123.lonely.dragon.world.WorldListener
-import com.congcoi123.lonely.dragon.utility.SharedEventKey
 
 @Component
 class ServerInitializedHandler : AbstractExtension(), EventServerInitialization {
+
     @AutowiredAcceptNull
     private val heartBeatManager: HeartBeatManager? = null
+
     override fun handle(serverName: String, configuration: Configuration) {
         val world = World(Example4Constant.DESIGN_WIDTH, Example4Constant.DESIGN_HEIGHT)
-        world.debug("[TenIO] Server Debugger : Stress Movement Simulation")
-        world.listener = object : WorldListener {
+        world.debug("Lonely Dragon")
+
+        world.worldListener = object : WorldListener {
             override val ccu: Int
                 get() = api().playerCount
 
-            override fun updateVehiclePosition(vehicle: Vehicle?) {
+            override fun updateVehiclePosition(vehicle: Vehicle) {
                 val players = api().allPlayers
                 val data = `object`()
-                val array = ArrayList<Int>()
-                if (vehicle != null) {
-                    array.add(vehicle.index)
-                }
-                if (vehicle != null) {
-                    array.add(vehicle.positionX.toInt())
-                }
-                if (vehicle != null) {
-                    array.add(vehicle.positionY.toInt())
-                }
-                if (vehicle != null) {
-                    array.add(vehicle.rotation.toInt())
-                }
+                val array = mutableListOf<Int>()
+
+                array.add(vehicle.index)
+                array.add(vehicle.positionX.toInt())
+                array.add(vehicle.positionY.toInt())
+                array.add(vehicle.rotation.toInt())
+
                 data.putIntegerArray(SharedEventKey.KEY_PLAYER_GET_RESPONSE, array)
                 response().setRecipients(players).setContent(data.toBinary()).prioritizedUdp().write()
             }
 
-            override fun responseVehicleNeighbours(playerName: String?, neighbours: List<Vehicle?>?, currentFps: Int) {
+            override fun responseVehicleNeighbours(playerName: String, neighbours: List<Vehicle>, currentFps: Int) {
                 val player = api().getPlayerByName(playerName)
-                if (player != null) {
+                player?.let {
                     val data = `object`()
                     data.putInteger(SharedEventKey.KEY_PLAYER_REQUEST_NEIGHBOURS, currentFps)
-                    response().setRecipient(player).setContent(data.toBinary()).write()
+                    response().setRecipient(it).setContent(data.toBinary()).write()
                 }
             }
         }
+
         try {
             heartBeatManager!!.initialize(1)
             heartBeatManager.create("world", world)

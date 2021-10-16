@@ -23,14 +23,14 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.statistic
 
-import kotlin.jvm.Volatile
-
 class LocalCounter private constructor() {
+
     @Volatile
     var countReceivedPacketSizeOneMinute = 0
 
     @Volatile
     var countUdpPacketsOneMinute = 0
+
     fun addCountReceivedPacketSizeOneMinute(countReceivedPacketSizeOneMinute: Int) {
         this.countReceivedPacketSizeOneMinute += countReceivedPacketSizeOneMinute
     }
@@ -40,9 +40,6 @@ class LocalCounter private constructor() {
     }
 
     companion object {
-        @JvmStatic
-        fun newInstance(): LocalCounter {
-            return LocalCounter()
-        }
+        fun newInstance() = LocalCounter()
     }
 }

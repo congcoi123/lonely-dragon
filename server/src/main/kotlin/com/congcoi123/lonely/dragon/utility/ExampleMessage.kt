@@ -23,34 +23,24 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.utility
 
+import com.tenio.common.utility.TimeUtility
 import com.tenio.engine.message.ExtraMessage
-import java.util.HashMap
 
 class ExampleMessage private constructor() : ExtraMessage {
-    private val content: MutableMap<String, Any>
-    override fun getTimestamp(): Long {
-        return 0
-    }
+
+    private val content = mutableMapOf<String, Any>()
+
+    override fun getTimestamp() = TimeUtility.currentTimeMillis()
 
     override fun putContent(key: String, value: Any) {
         content[key] = value
     }
 
-    override fun getContent(): Map<String, Any> {
-        return content
-    }
+    override fun getContent() = content
 
-    override fun getContentByKey(key: String): Any {
-        return content[key]!!
-    }
+    override fun getContentByKey(key: String) = content[key]
 
     companion object {
-        fun newInstance(): ExampleMessage {
-            return ExampleMessage()
-        }
-    }
-
-    init {
-        content = HashMap()
+        fun newInstance() = ExampleMessage()
     }
 }

@@ -26,7 +26,7 @@ package com.congcoi123.lonely.dragon.configuration
 import com.tenio.common.bootstrap.annotation.Component
 import com.tenio.common.configuration.Configuration
 import com.tenio.core.configuration.CoreConfiguration
-import com.congcoi123.lonely.dragon.utility.ExampleConfigurationType
+import com.congcoi123.lonely.dragon.utility.LDConfigurationType
 
 /**
  * Create your own configurations.
@@ -35,7 +35,7 @@ import com.congcoi123.lonely.dragon.utility.ExampleConfigurationType
 class TestConfiguration : CoreConfiguration(), Configuration {
     override fun extend(extProperties: Map<String, String>) {
         for ((paramName, value) in extProperties) {
-            push(ExampleConfigurationType.getByValue(paramName), value)
+            push(LDConfigurationType.getByValue(paramName), value)
         }
     }
 }
