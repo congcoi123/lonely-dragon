@@ -32,10 +32,10 @@ import com.tenio.core.entity.data.ServerMessage;
  */
 public interface SocketListener {
 
-  /**
-   * Listen for a new message.
-   *
-   * @param message the received message
-   */
-  void onReceivedTCP(ServerMessage message);
+	/**
+	 * Listen for a new message.
+	 *
+	 * @param message the received message
+	 */
+	void onReceivedTCP(ServerMessage message);
 }

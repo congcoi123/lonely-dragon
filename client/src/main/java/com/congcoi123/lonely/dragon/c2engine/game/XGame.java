@@ -8,9 +8,6 @@ import com.congcoi123.lonely.dragon.c2engine.screen.XScreen;
 
 /**
  * A wrapper class for game handler.
- * 
- * @author mytv
- *
  */
 public abstract class XGame extends Game {
 	private LoadingScreenAbstract loadingScreenAbstract;
@@ -57,5 +54,4 @@ public abstract class XGame extends Game {
 	public static int getHeight() {
 		return HEIGHT;
 	}
-	
 }

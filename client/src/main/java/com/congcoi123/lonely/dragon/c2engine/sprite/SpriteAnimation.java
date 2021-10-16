@@ -1064,5 +1064,4 @@ public class SpriteAnimation implements Animator, SpriteBackend {
 	public void resize(float num){
 		setSize(getWidth()*num, getHeight()*num);
 	}
-
 }

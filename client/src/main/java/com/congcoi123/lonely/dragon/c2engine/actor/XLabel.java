@@ -28,9 +28,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 /**
  * A wrapper class for label handler.
- * 
- * @author kong
- *
  */
 public class XLabel extends Label {
 
@@ -49,5 +46,4 @@ public class XLabel extends Label {
 	public float getCenterY() {
 		return getY() + getMinHeight() / 2;
 	}
-
 }

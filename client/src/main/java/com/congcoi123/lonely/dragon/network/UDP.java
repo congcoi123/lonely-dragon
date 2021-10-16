@@ -45,96 +45,96 @@ import java.util.concurrent.Future;
  */
 public final class UDP {
 
-  private static final int DEFAULT_BYTE_BUFFER_SIZE = 10240;
-  private static final String BROADCAST_ADDRESS = "0.0.0.0";
-  /**
-   * The desired port for listening.
-   */
-  private final int __port;
-  private Future<?> future;
-  private DatagramSocket datagramSocket;
-  private InetAddress inetAddress;
+	private static final int DEFAULT_BYTE_BUFFER_SIZE = 10240;
+	private static final String BROADCAST_ADDRESS = "0.0.0.0";
+	/**
+	 * The desired port for listening.
+	 */
+	private final int port;
+	private Future<?> future;
+	private DatagramSocket datagramSocket;
+	private InetAddress inetAddress;
 
-  /**
-   * Listen in a port on the local machine.
-   *
-   * @param port the desired port
-   */
-  public UDP(int port, boolean broadcast) {
-    try {
-      if (broadcast) {
-        datagramSocket = new DatagramSocket(port, InetAddress.getByName(BROADCAST_ADDRESS));
-        datagramSocket.setBroadcast(true);
-        if (OsUtility.getOperatingSystemType() == OsUtility.OsType.Windows) {
-          datagramSocket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-        } else {
-          datagramSocket.setOption(StandardSocketOptions.SO_REUSEPORT, true);
-        }
-      } else {
-        datagramSocket = new DatagramSocket();
-      }
-    } catch (SocketException e) {
-      e.printStackTrace();
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    try {
-      inetAddress = InetAddress.getLocalHost();
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
-    }
-    __port = port;
-  }
+	/**
+	 * Listen in a port on the local machine.
+	 *
+	 * @param port the desired port
+	 */
+	public UDP(int port, boolean broadcast) {
+		try {
+			if (broadcast) {
+				datagramSocket = new DatagramSocket(port, InetAddress.getByName(BROADCAST_ADDRESS));
+				datagramSocket.setBroadcast(true);
+				if (OsUtility.getOperatingSystemType() == OsUtility.OsType.Windows) {
+					datagramSocket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+				} else {
+					datagramSocket.setOption(StandardSocketOptions.SO_REUSEPORT, true);
+				}
+			} else {
+				datagramSocket = new DatagramSocket();
+			}
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			inetAddress = InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		this.port = port;
+	}
 
-  public UDP(int port) {
-    this(port, false);
-  }
+	public UDP(int port) {
+		this(port, false);
+	}
 
-  /**
-   * Send a message to the server.
-   *
-   * @param message the desired message
-   */
-  public void send(ServerMessage message) {
-    byte[] pack = message.getData().toBinary();
-    DatagramPacket request = new DatagramPacket(pack, pack.length, inetAddress, __port);
-    try {
-      datagramSocket.send(request);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+	/**
+	 * Send a message to the server.
+	 *
+	 * @param message the desired message
+	 */
+	public void send(ServerMessage message) {
+		byte[] pack = message.getData().toBinary();
+		DatagramPacket request = new DatagramPacket(pack, pack.length, inetAddress, port);
+		try {
+			datagramSocket.send(request);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-  /**
-   * Listen for messages that came from the server.
-   *
-   * @param listener
-   */
-  public void receive(DatagramListener listener) {
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-    future = executorService.submit(() -> {
-      while (true) {
-        try {
-          byte[] buffer = new byte[DEFAULT_BYTE_BUFFER_SIZE];
-          DatagramPacket response = new DatagramPacket(buffer, buffer.length);
-          datagramSocket.receive(response);
-          ZeroObject data = ZeroObjectImpl.newInstance(buffer);
-          listener.onReceivedUDP(ServerMessage.newInstance().setData(data));
-        } catch (IOException e) {
-          e.printStackTrace();
-          return;
-        }
-      }
-    });
-  }
+	/**
+	 * Listen for messages that came from the server.
+	 *
+	 * @param listener
+	 */
+	public void receive(DatagramListener listener) {
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		future = executorService.submit(() -> {
+			while (true) {
+				try {
+					byte[] buffer = new byte[DEFAULT_BYTE_BUFFER_SIZE];
+					DatagramPacket response = new DatagramPacket(buffer, buffer.length);
+					datagramSocket.receive(response);
+					ZeroObject data = ZeroObjectImpl.newInstance(buffer);
+					listener.onReceivedUDP(ServerMessage.newInstance().setData(data));
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
+			}
+		});
+	}
 
-  /**
-   * Close this connection.
-   */
-  public void close() {
-    datagramSocket.close();
-    future.cancel(true);
-  }
+	/**
+	 * Close this connection.
+	 */
+	public void close() {
+		datagramSocket.close();
+		future.cancel(true);
+	}
 }

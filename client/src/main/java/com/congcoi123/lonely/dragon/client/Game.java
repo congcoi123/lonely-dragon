@@ -27,11 +27,6 @@ import com.badlogic.gdx.Screen;
 import com.congcoi123.lonely.dragon.c2engine.game.XGame;
 import com.congcoi123.lonely.dragon.c2engine.screen.LoadingScreenAbstract;
 
-/**
- * 
- * @author kong
- *
- */
 public class Game extends XGame {
 
 	@Override
@@ -41,7 +36,7 @@ public class Game extends XGame {
 
 	/**
 	 * Set your customize loading screen (with background, something else...),
-	 * nothing inside is acceptable
+	 * nothing inside is acceptable.
 	 */
 	@Override
 	public LoadingScreenAbstract createLoadingScreen() {
@@ -49,11 +44,10 @@ public class Game extends XGame {
 	}
 
 	/**
-	 * Set your customize first screen to start game
+	 * Set your customize first screen to start game.
 	 */
 	@Override
 	public Screen createStartedScreen() {
 		return new MainScreen();
 	}
-
 }

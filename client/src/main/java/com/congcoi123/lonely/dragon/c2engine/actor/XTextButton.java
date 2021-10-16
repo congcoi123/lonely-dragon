@@ -28,9 +28,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 /**
  * A wrapper class for text button handler.
- * 
- * @author kong
- *
  */
 public class XTextButton extends TextButton {
 
@@ -45,5 +42,4 @@ public class XTextButton extends TextButton {
 	public void resize(float amount) {
 		setSize(getWidth() * amount, getHeight() * amount);
 	}
-
 }

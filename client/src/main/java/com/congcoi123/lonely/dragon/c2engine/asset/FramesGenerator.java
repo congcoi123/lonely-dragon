@@ -30,15 +30,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 /**
  * This class is used to divide a big frame images into smaller parts.
- * 
- * @author kong
- *
  */
 public class FramesGenerator {
 
 	/**
 	 * Get frames from image (from asset) that contain a list of frame, arranged in
-	 * line
+	 * line.
 	 */
 	public static TextureRegion[] getFramesFromTexture(Asset asset, int rows, int cols) {
 		Texture texture = ResourceManager.get(asset, Texture.class);
@@ -47,7 +44,7 @@ public class FramesGenerator {
 
 	/**
 	 * Split TextureRegion @see {@link TextureRegion} for Animation @see
-	 * {@link Animation}
+	 * {@link Animation}.
 	 * 
 	 * @param textureRegion
 	 * @param rows
@@ -74,7 +71,7 @@ public class FramesGenerator {
 	}
 
 	/**
-	 * Get the key frames in range
+	 * Get the key frames in range.
 	 * 
 	 * @param textureAtlas
 	 * @param keyFrame
@@ -96,10 +93,10 @@ public class FramesGenerator {
 	}
 
 	/**
-	 * Get the key frames by desired array of key frames
+	 * Get the key frames by desired array of key frames.
 	 * 
 	 * @param keyFrames
-	 * @return Returns an array of TextureRegion @see {@link TextureRegion} objects 
+	 * @return Returns an array of TextureRegion @see {@link TextureRegion} objects
 	 */
 	public static TextureRegion[] getKeyFrames(TextureRegion[]... keyFrames) {
 		int size = 0;
@@ -119,5 +116,4 @@ public class FramesGenerator {
 
 		return trRegions;
 	}
-
 }

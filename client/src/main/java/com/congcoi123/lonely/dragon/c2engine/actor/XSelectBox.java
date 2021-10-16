@@ -27,18 +27,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 /**
- * A wrapper class for checkbox handler.
- * 
- * @author kong
- *
+ * A wrapper class for check box handler.
  */
 public class XSelectBox extends SelectBox {
-	private Runnable[] __runables;
-	private int __lastSelectIndex = -1;
+	private Runnable[] runables;
+	private int lastSelectIndex = -1;
 
 	public XSelectBox(Object[] items, Skin skin, Runnable[] runables) {
 		super(items, skin);
-		this.__runables = runables;
+		this.runables = runables;
 	}
 
 	public XSelectBox(String[] items, Skin skin) {
@@ -48,11 +45,10 @@ public class XSelectBox extends SelectBox {
 	@Override
 	public void act(float delta) {
 		super.act(delta);
-		if (getSelectionIndex() != __lastSelectIndex) {
-			__lastSelectIndex = getSelectionIndex();
-			if (__runables != null && __runables[__lastSelectIndex] != null)
-				__runables[__lastSelectIndex].run();
+		if (getSelectionIndex() != lastSelectIndex) {
+			lastSelectIndex = getSelectionIndex();
+			if (runables != null && runables[lastSelectIndex] != null)
+				runables[lastSelectIndex].run();
 		}
 	}
-
 }

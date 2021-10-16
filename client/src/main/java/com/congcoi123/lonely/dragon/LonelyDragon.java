@@ -26,27 +26,16 @@ package com.congcoi123.lonely.dragon;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.congcoi123.lonely.dragon.client.Game;
-import com.congcoi123.lonely.dragon.constant.Constants;
+import com.congcoi123.lonely.dragon.constant.Constant;
 
-/**
- * This class is a part of TenIO project. It's a testing client for the TenIO
- * example number 4. Furthermore, the detail can be seen in
- * <code>README.md</code> file.
- * 
- * @author kong
- *
- */
-public class ClientStarter {
+public class LonelyDragon {
 
-	/**
-	 * The entry point
-	 */
 	public static void main(String[] args) {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
-		cfg.title = "[TenIO] Movement Testing Example 4";
+		cfg.title = "Lonely Dragon";
 		cfg.useGL20 = true;
-		cfg.width = Constants.GAME_WIDTH;
-		cfg.height = Constants.GAME_HEIGHT;
+		cfg.width = Constant.GAME_WIDTH;
+		cfg.height = Constant.GAME_HEIGHT;
 
 		new LwjglApplication(new Game(), cfg);
 	}

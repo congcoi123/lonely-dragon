@@ -26,16 +26,10 @@ package com.congcoi123.lonely.dragon.client;
 import com.badlogic.gdx.graphics.Texture;
 import com.congcoi123.lonely.dragon.c2engine.asset.Asset;
 
-/**
- * 
- * @author kong
- *
- */
 public class Assets {
-	
+
 	public static Asset TX_TEST_BACKGROUND = new Asset("data/libgdx.png", Texture.class);
 	public static Asset TX_TEST_DRAGON = new Asset("data/dragon.png", Texture.class);
 
 	public static Asset[] PACK_TEST_DRAGON = new Asset[] { TX_TEST_DRAGON };
-
 }

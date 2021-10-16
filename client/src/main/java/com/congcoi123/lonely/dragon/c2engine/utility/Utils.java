@@ -29,16 +29,12 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
-/**
- * 
- * @author kong
- *
- */
 public class Utils {
+
 	private static final String VNI_CHAR = "()Ã¡Â»ï¿½!?Ã¡Â»ï¿½Ã¡ÂºÂ§ÃƒÂ³ÃƒÂ£:1234567890$AÃ„â€šÃƒâ€šBCDÃ„ï¿½EÃƒÅ GHIKLMNOÃƒâ€�Ã†Â PQRSTUÃ†Â¯VXYaÃ„Æ’ÃƒÂ¢bcdÃ„â€˜eÃƒÂªghiklmnoÃƒÂ´Ã†Â¡pqrstuÃ†Â°vxyÃ¡Â»â„¢Ã¡Â»Â¥Ã¡Â»â€˜Ã¡Â»Æ’ÃƒÂ []Ã¡ÂºÂ­ÃƒÂ¡ÃƒÂºÃ¡ÂºÂ»Ã¡Â»â€ºÃ¡Â»ï¿½Ã¡Â»Â©Ã¡ÂºÂ¯Ã¡ÂºÂ¥Ã¡Â»Å¸Ã¡Â»Â£Ã¡ÂºÂ©Ã¡Â»â€¹ÃƒÂ¬ÃƒÂ­Ã¡Â»Â±ÃƒÂ©Ã¡Â»â€œÃ¡ÂºÂ¡Ã¡Â»Â­Ã¡ÂºÂ¿Ã¡ÂºÂ£Ã¡ÂºÂ¢Ã¡Â»â€¢Ã¡Â»â€�";
 
 	/**
-	 * make bitmap font from true type font
+	 * make bitmap font from true type font.
 	 * 
 	 * @param file
 	 * @param size
@@ -57,7 +53,7 @@ public class Utils {
 	}
 
 	/**
-	 * Load Particle Effect
+	 * Load Particle Effect.
 	 * 
 	 * @param folder
 	 * @param fileName
@@ -73,7 +69,7 @@ public class Utils {
 	}
 
 	/**
-	 * Load Particle Effect
+	 * Load Particle Effect.
 	 * 
 	 * @param folder       : path + file name
 	 * @param TextureAtlas
@@ -92,5 +88,4 @@ public class Utils {
 		System.out.println("X : " + Gdx.input.getX() * width / Gdx.graphics.getWidth() + " Y : "
 				+ (Gdx.graphics.getHeight() - Gdx.input.getY()) * height / Gdx.graphics.getHeight());
 	}
-
 }

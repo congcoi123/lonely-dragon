@@ -33,7 +33,7 @@ import com.congcoi123.lonely.dragon.c2engine.asset.AssetManageable;
 import com.congcoi123.lonely.dragon.c2engine.asset.FramesGenerator;
 import com.congcoi123.lonely.dragon.c2engine.screen.XScreen;
 import com.congcoi123.lonely.dragon.c2engine.sprite.SpriteAnimation;
-import com.congcoi123.lonely.dragon.constant.Constants;
+import com.congcoi123.lonely.dragon.constant.Constant;
 import com.congcoi123.lonely.dragon.constant.SharedEventKey;
 import com.congcoi123.lonely.dragon.constant.UdpEstablishedState;
 import com.congcoi123.lonely.dragon.network.DatagramListener;
@@ -44,44 +44,36 @@ import com.tenio.common.data.ZeroObject;
 import com.tenio.common.data.implement.ZeroObjectImpl;
 import com.tenio.core.entity.data.ServerMessage;
 
-/**
- * 
- * @author kong
- *
- */
 public class GameScreen extends XScreen implements AssetManageable, SocketListener, DatagramListener {
-	/**
-	 * @see TCP
-	 */
+
 	private TCP tcp;
-	/**
-	 * @see UDP
-	 */
 	private UDP udp;
-
-	private String playerName = "kong";
-
-	private int lastPositionX = 0;
-
-	private boolean flip = false;
+	
+	private String playerName;
+	private int lastPositionX;
+	private boolean flip;
 
 	/**
-	 * An array of all entities
+	 * An array of all entities.
 	 */
-	private List<SpriteAnimation> __spriteAnimations = new ArrayList<SpriteAnimation>();
+	private List<SpriteAnimation> spriteAnimations = new ArrayList<SpriteAnimation>();
 
 	public GameScreen() {
 		// create a new TCP object and listen for this port
-		tcp = new TCP(Constants.SOCKET_PORT);
+		tcp = new TCP(Constant.SOCKET_PORT);
 		tcp.receive(this);
 
 		// create a new UDP object and listen for this port
-		udp = new UDP(Constants.DATAGRAM_PORT);
+		udp = new UDP(Constant.DATAGRAM_PORT);
 		udp.receive(this);
+		
+		// initialization
+		playerName = "kong";
+		lastPositionX = 0;
+		flip = false;
 
 		// send a login request
 		sendLoginRequest();
-
 	}
 
 	// networking
@@ -125,18 +117,18 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 
 			if (lastPositionX > positionX) {
 				if (!flip) {
-					__spriteAnimations.get(index).setFlipX(true);
+					spriteAnimations.get(index).setFlipX(true);
 					flip = true;
 				}
 			} else {
 				if (flip) {
-					__spriteAnimations.get(index).setFlipX(false);
+					spriteAnimations.get(index).setFlipX(false);
 					flip = false;
 				}
 			}
 
 			// a naive synchronous for testing ...
-			__spriteAnimations.get(index).setCenterXY(positionX, 500 - positionY);
+			spriteAnimations.get(index).setCenterXY(positionX, 500 - positionY);
 
 			lastPositionX = positionX;
 		}
@@ -145,10 +137,10 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 	// rendering
 	@Override
 	public void show() {
-		__initSpriteAnimation();
+		initSpriteAnimation();
 	}
 
-	private void __initSpriteAnimation() {
+	private void initSpriteAnimation() {
 		for (int i = 0; i < 100; i++) {
 			SpriteAnimation spriteAnimationSimple = new SpriteAnimation(
 					FramesGenerator.getFramesFromTexture(Assets.TX_TEST_DRAGON, 1, 6));
@@ -158,7 +150,7 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 			} else {
 				spriteAnimationSimple.resize(0.05f);
 			}
-			__spriteAnimations.add(spriteAnimationSimple);
+			spriteAnimations.add(spriteAnimationSimple);
 		}
 	}
 
@@ -204,7 +196,7 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 	public void draw(float delta) {
 		// bring all to the screen
 		batch.begin();
-		__spriteAnimations.forEach(spriteAnimation -> {
+		spriteAnimations.forEach(spriteAnimation -> {
 			spriteAnimation.draw(batch);
 		});
 		batch.end();
@@ -213,7 +205,7 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 	@Override
 	public void update(float delta) {
 		// just simple updating new position for all entities
-		__spriteAnimations.forEach(spriteAnimation -> {
+		spriteAnimations.forEach(spriteAnimation -> {
 			spriteAnimation.update(delta);
 		});
 	}
@@ -223,5 +215,4 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 		data.putString(SharedEventKey.KEY_PLAYER_LOGIN, playerName);
 		tcp.send(ServerMessage.newInstance().setData(data));
 	}
-
 }

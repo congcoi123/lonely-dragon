@@ -1,10 +1,7 @@
 package com.congcoi123.lonely.dragon.c2engine.asset;
 
 /**
- * This class contain information about asset
- * 
- * @author mytv
- *
+ * This class contain information about asset.
  */
 public class Asset {
 	public String pathName;

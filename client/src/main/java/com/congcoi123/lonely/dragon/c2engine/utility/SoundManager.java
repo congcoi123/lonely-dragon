@@ -27,10 +27,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 
 /**
- * This class is used for simple sound management
- * 
- * @author kong
- *
+ * This class is used for simple sound management.
  */
 public class SoundManager {
 	public static boolean SOUND_ENABLE = true;

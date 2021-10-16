@@ -30,9 +30,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 /**
  * A wrapper class for image handler.
- * 
- * @author kong
- *
  */
 public class XImage extends Image {
 

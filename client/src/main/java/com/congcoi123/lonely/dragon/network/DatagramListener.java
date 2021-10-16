@@ -32,10 +32,10 @@ import com.tenio.core.entity.data.ServerMessage;
  */
 public interface DatagramListener {
 
-  /**
-   * Listen for a new message.
-   *
-   * @param message the received message
-   */
-  void onReceivedUDP(ServerMessage message);
+	/**
+	 * Listen for a new message.
+	 *
+	 * @param message the received message
+	 */
+	void onReceivedUDP(ServerMessage message);
 }

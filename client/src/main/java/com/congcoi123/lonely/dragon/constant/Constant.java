@@ -26,21 +26,18 @@ package com.congcoi123.lonely.dragon.constant;
 /**
  * All base constants' values for the server are defined here. This class should
  * not be modified.
- * 
- * @author kong
- * 
  */
-public final class Constants {
+public final class Constant {
 
 	/**
 	 * The size of screen in width, it should be same value as this one in server
-	 * side
+	 * side.
 	 */
 	public static final int GAME_WIDTH = 500;
 
 	/**
 	 * The size of screen in height, it should be same value as this one in server
-	 * side
+	 * side.
 	 */
 	public static final int GAME_HEIGHT = 500;
 
@@ -65,7 +62,6 @@ public final class Constants {
 	 */
 	public static final int ADD_ELEMENT_POOL = 10;
 
-	  public static final int SOCKET_PORT = 8032;
-	  public static final int DATAGRAM_PORT = 8034;
-
+	public static final int SOCKET_PORT = 8032;
+	public static final int DATAGRAM_PORT = 8034;
 }

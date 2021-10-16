@@ -4,11 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 
 import aurelienribon.tweenengine.TweenAccessor;
 
-/**
- * 
- * @author mytv
- *
- */
 public class SpriteAnimationAccessor implements TweenAccessor<SpriteAnimation> {
 	public static final int POS_XY = 1;
 	public static final int CPOS_XY = 2;

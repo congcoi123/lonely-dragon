@@ -5,12 +5,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-/**
- * 
- * @author mytv
- * 
- */
 public class ResourceManager {
+
 	private static AssetManager assetManager = new AssetManager();
 
 	public static AssetManager getAssetManager() {
@@ -93,5 +89,4 @@ public class ResourceManager {
 	public static void loadAsset(Asset asset) {
 		assetManager.load(asset.pathName, asset.clazz);
 	}
-	
 }

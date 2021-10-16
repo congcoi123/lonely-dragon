@@ -3,17 +3,7 @@ package com.congcoi123.lonely.dragon.c2engine.sprite;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-/**
- * A backend of all sprite make them become easy to manage
- * 
- * @FileName: SpriteBackend.java
- * @CreateOn: Sep 23, 2012 - 2:49:59 PM
- * @Author: TrungNT
- */
 public interface SpriteBackend {
-
-	// =================================================
-	// setter
 
 	public void setBounds(float x, float y, float width, float height);
 
@@ -47,9 +37,6 @@ public interface SpriteBackend {
 
 	public void setColor(Color color);
 
-	// =================================================
-	// getter
-
 	public float[] getVertices();
 
 	public float getCenterX();
@@ -79,5 +66,4 @@ public interface SpriteBackend {
 	public void draw(SpriteBatch batch);
 
 	public void draw(SpriteBatch batch, float alpha);
-
 }

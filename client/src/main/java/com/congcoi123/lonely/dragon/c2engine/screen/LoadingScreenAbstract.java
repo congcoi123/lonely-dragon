@@ -7,32 +7,22 @@ import com.congcoi123.lonely.dragon.c2engine.asset.Asset;
 import com.congcoi123.lonely.dragon.c2engine.asset.AssetManageable;
 import com.congcoi123.lonely.dragon.c2engine.asset.ResourceManager;
 
-/**
- * 
- * @author mytv
- *
- */
 public abstract class LoadingScreenAbstract implements Screen {
 
 	protected float progress;
-	// private attribute should be added "_" at
-	// last, it's simple mark and a standard of code
-	private Screen nextScreen_;
-	private Game game_;
+	private Screen nextScreen;
+	private Game game;
 
 	public void createGame(Game game) {
-		// create game
-		game_ = game;
-		// preload assets
+		this.game = game;
 		preload();
-		// init process
 		progress = 0;
 	}
 
 	public void setNextScreen(Screen screen) {
 		// unload last screen resource if need
-		if (nextScreen_ != null && nextScreen_ instanceof AssetManageable) {
-			Iterable<Asset> unloadAssets = ((AssetManageable) nextScreen_).unloadAssets();
+		if (nextScreen != null && nextScreen instanceof AssetManageable) {
+			Iterable<Asset> unloadAssets = ((AssetManageable) nextScreen).unloadAssets();
 			if (unloadAssets != null)
 				ResourceManager.unloadAssets(unloadAssets);
 		}
@@ -44,7 +34,7 @@ public abstract class LoadingScreenAbstract implements Screen {
 				ResourceManager.loadAssets(loadAssets);
 		}
 
-		nextScreen_ = screen;
+		nextScreen = screen;
 	}
 
 	public void render(float delta) {
@@ -56,7 +46,7 @@ public abstract class LoadingScreenAbstract implements Screen {
 		// if unload and load is done, automatically set to next screen && progress >
 		// 0.99f
 		if (ResourceManager.isLoadDone()) {
-			game_.setScreen(nextScreen_);
+			this.game.setScreen(nextScreen);
 		}
 	}
 
@@ -65,5 +55,4 @@ public abstract class LoadingScreenAbstract implements Screen {
 	// draw background, animation, anything else let code in below. It is
 	// abstract because it's up to ideal of design
 	public abstract void onRender(float render);
-	
 }

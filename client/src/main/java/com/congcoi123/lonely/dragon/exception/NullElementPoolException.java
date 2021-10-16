@@ -23,15 +23,8 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.exception;
 
-/**
- * 
- * @author kong
- * 
- */
 public class NullElementPoolException extends RuntimeException {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1702807220957046354L;
 
 	public NullElementPoolException() {
@@ -41,5 +34,4 @@ public class NullElementPoolException extends RuntimeException {
 	public NullElementPoolException(final String message) {
 		super(message);
 	}
-
 }

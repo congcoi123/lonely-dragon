@@ -1,10 +1,7 @@
 package com.congcoi123.lonely.dragon.c2engine.sprite;
 
 /**
- * A class make it easy to manage animation of sprite
- * 
- * @author Ngo Trong TRung
- * 
+ * A class make it easy to manage animation of sprite.
  */
 public interface Animator {
 
@@ -25,5 +22,4 @@ public interface Animator {
 	public void update(float delta);
 
 	public boolean isRunning();
-
 }

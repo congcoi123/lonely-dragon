@@ -26,11 +26,6 @@ package com.congcoi123.lonely.dragon.client;
 import com.congcoi123.lonely.dragon.c2engine.asset.ResourceManager;
 import com.congcoi123.lonely.dragon.c2engine.screen.LoadingScreenAbstract;
 
-/**
- * 
- * @author kong
- *
- */
 public class LoadingScreen extends LoadingScreenAbstract {
 
 	@Override
@@ -72,5 +67,4 @@ public class LoadingScreen extends LoadingScreenAbstract {
 	public void preload() {
 		ResourceManager.preloadAssets(Assets.TX_TEST_BACKGROUND);
 	}
-
 }

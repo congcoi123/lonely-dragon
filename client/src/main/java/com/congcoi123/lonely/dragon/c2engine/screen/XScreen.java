@@ -9,11 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.congcoi123.lonely.dragon.c2engine.game.XGame;
 
-/**
- * 
- * @author mytv
- *
- */
 public abstract class XScreen implements Screen {
 	protected static Camera camera;
 	protected static SpriteBatch batch;
@@ -45,5 +40,4 @@ public abstract class XScreen implements Screen {
 	public abstract void draw(float delta);
 
 	public abstract void update(float delta);
-	
 }
