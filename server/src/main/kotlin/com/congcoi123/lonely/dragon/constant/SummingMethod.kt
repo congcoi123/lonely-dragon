@@ -1,9 +1,10 @@
 package com.congcoi123.lonely.dragon.constant
 
 enum class SummingMethod {
-    WEIGHTED_AVERAGE, PRIORITIZED, DITHERED;
 
-    override fun toString(): String {
-        return name
-    }
+    WEIGHTED_AVERAGE,
+    PRIORITIZED,
+    DITHERED;
+
+    override fun toString() = name
 }

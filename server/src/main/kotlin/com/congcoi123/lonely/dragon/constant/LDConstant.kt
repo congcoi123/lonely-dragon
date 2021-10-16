@@ -23,9 +23,7 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.constant
 
-import java.lang.UnsupportedOperationException
-
-class Example4Constant private constructor() {
+class LDConstant private constructor() {
     companion object {
         const val DESIGN_WIDTH = 500
         const val DESIGN_HEIGHT = 500
@@ -39,7 +37,7 @@ class Example4Constant private constructor() {
         // time in seconds
         const val SEND_MEASUREMENT_REQUEST_INTERVAL = 20
         const val NUMBER_OF_PLAYERS = 100
-        const val ONE_SECOND_EXPECT_RECEIVE_PACKETS = 60
+        private const val ONE_SECOND_EXPECT_RECEIVE_PACKETS = 60
         const val ONE_MINUTE_EXPECT_RECEIVE_PACKETS = ONE_SECOND_EXPECT_RECEIVE_PACKETS * 60 * 100
     }
 

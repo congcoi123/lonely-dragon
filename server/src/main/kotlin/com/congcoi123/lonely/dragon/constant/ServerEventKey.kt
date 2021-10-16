@@ -23,9 +23,8 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.constant
 
-import java.lang.UnsupportedOperationException
-
 class ServerEventKey private constructor() {
+
     companion object {
         const val KEY_PLAYER_NAME = "id"
         const val KEY_PLAYER_REQUEST = "q"

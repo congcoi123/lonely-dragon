@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon
 
-import com.congcoi123.lonely.dragon.constant.Example4Constant
+import com.congcoi123.lonely.dragon.constant.LDConstant
 import com.congcoi123.lonely.dragon.world.World
 import com.tenio.engine.heartbeat.HeartBeatManagerImpl
 
@@ -34,7 +34,7 @@ class LocalLonelyDragon
 
 fun main(args: Array<String>) {
     // Create a world
-    val world = World(Example4Constant.DESIGN_WIDTH, Example4Constant.DESIGN_HEIGHT)
+    val world = World(LDConstant.DESIGN_WIDTH, LDConstant.DESIGN_HEIGHT)
     // Enable debugger window
     world.debug("Local Lonely Dragon")
     val heartBeatManager = HeartBeatManagerImpl()

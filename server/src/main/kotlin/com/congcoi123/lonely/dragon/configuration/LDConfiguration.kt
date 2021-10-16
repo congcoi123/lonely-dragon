@@ -23,16 +23,17 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.configuration
 
+import com.congcoi123.lonely.dragon.utility.LDConfigurationType
 import com.tenio.common.bootstrap.annotation.Component
 import com.tenio.common.configuration.Configuration
 import com.tenio.core.configuration.CoreConfiguration
-import com.congcoi123.lonely.dragon.utility.LDConfigurationType
 
 /**
  * Create your own configurations.
  */
 @Component
-class TestConfiguration : CoreConfiguration(), Configuration {
+class LDConfiguration : CoreConfiguration(), Configuration {
+
     override fun extend(extProperties: Map<String, String>) {
         for ((paramName, value) in extProperties) {
             push(LDConfigurationType.getByValue(paramName), value)

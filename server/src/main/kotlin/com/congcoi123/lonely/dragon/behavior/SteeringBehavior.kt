@@ -1,29 +1,30 @@
 package com.congcoi123.lonely.dragon.behavior
 
-import com.congcoi123.lonely.dragon.entity.Vehicle
-import com.tenio.engine.physic2d.graphic.Renderable
 import com.congcoi123.lonely.dragon.configuration.ParamLoader
-import com.tenio.engine.physic2d.math.Vector2
+import com.congcoi123.lonely.dragon.constant.Behavior
 import com.congcoi123.lonely.dragon.constant.Deceleration
 import com.congcoi123.lonely.dragon.constant.SummingMethod
-import com.congcoi123.lonely.dragon.constant.Behavior
-import com.tenio.engine.physic2d.utility.Transformation
+import com.congcoi123.lonely.dragon.entity.Vehicle
+import com.congcoi123.lonely.dragon.entity.Wall
 import com.tenio.common.utility.MathUtility
 import com.tenio.engine.physic2d.common.BaseGameEntity
 import com.tenio.engine.physic2d.common.Path
 import com.tenio.engine.physic2d.graphic.Paint
-import com.congcoi123.lonely.dragon.entity.Wall
+import com.tenio.engine.physic2d.graphic.Renderable
+import com.tenio.engine.physic2d.math.Vector2
 import com.tenio.engine.physic2d.utility.Geometry
+import com.tenio.engine.physic2d.utility.Transformation
 import java.awt.Color
-import java.util.ArrayList
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * This class is used to encapsulate steering behaviors for a vehicle.
- *
- * @see Vehicle
  */
-class SteeringBehavior(  // a pointer to the owner of this instance
-        private val vehicle: Vehicle
+class SteeringBehavior(
+    private val vehicle: Vehicle
 ) : Renderable {
     private val paramLoader = ParamLoader.instance
 
@@ -38,16 +39,16 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     private val wanderTarget: Vector2
 
     // explained above
-    val wanderJitter: Float
-    val wanderRadius: Float
-    val wanderDistance: Float
+    private val wanderJitter: Float
+    private val wanderRadius: Float
+    private val wanderDistance: Float
 
     // multipliers. These can be adjusted to effect strength of the
     // appropriate behavior. Useful to get flocking the way you require
     // for example.
-    val separationWeight: Float
-    val cohesionWeight: Float
-    val alignmentWeight: Float
+    private val separationWeight: Float
+    private val cohesionWeight: Float
+    private val alignmentWeight: Float
     private val weightWander: Float
     private val weightObstacleAvoidance: Float
     private val weightWallAvoidance: Float
@@ -82,7 +83,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
     // the steering force created by the combined effect of all
     // the selected behaviors
-    var force = Vector2.newInstance()
+    var force: Vector2 = Vector2.newInstance()
 
     // these can be used to keep track of friends, pursuers, or prey
     private lateinit var targetAgent1: Vehicle
@@ -149,21 +150,24 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         sensors.clear()
         // feeler pointing straight in front
         val front = Vector2.valueOf(vehicle.heading).mul(wallDetectionSensorLength)
-                .add(vehicle.position)
+            .add(vehicle.position)
         sensors.add(front)
 
         // feeler to left
         val left = Transformation.vec2dRotateAroundOrigin(
-                vehicle.heading, MathUtility.HALF_PI * 3.5f)
-        left.mul(wallDetectionSensorLength / 2.0f).add(vehicle.position)
+            vehicle.heading, MathUtility.HALF_PI * 3.5F
+        )
+        left.mul(wallDetectionSensorLength / 2.0F).add(vehicle.position)
         sensors.add(left)
 
         // feeler to right
         val right = Transformation.vec2dRotateAroundOrigin(
-                vehicle.heading, MathUtility.HALF_PI * 0.5f)
-        right.mul(wallDetectionSensorLength / 2.0f).add(vehicle.position)
+            vehicle.heading, MathUtility.HALF_PI * 0.5F
+        )
+        right.mul(wallDetectionSensorLength / 2.0F).add(vehicle.position)
         sensors.add(right)
     }
+
     // ---------------------------- START OF BEHAVIORS ----------------------------
     //
     // ----------------------------------------------------------------------------
@@ -173,7 +177,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
      */
     private fun doSeek(targetPos: Vector2): Vector2 {
         val desiredVelocity = Vector2.valueOf(targetPos).sub(vehicle.position).normalize()
-                .mul(vehicle.maxSpeed)
+            .mul(vehicle.maxSpeed)
         return desiredVelocity.sub(vehicle.velocity)
     }
 
@@ -184,7 +188,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         // only flee if the target is within 'panic distance'. Work in distance squared
         // space.
         val desiredVelocity = Vector2.valueOf(vehicle.position).sub(targetPos).normalize()
-                .mul(vehicle.maxSpeed)
+            .mul(vehicle.maxSpeed)
         return desiredVelocity.sub(vehicle.velocity)
     }
 
@@ -200,7 +204,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         if (dist > 0) {
             // because Deceleration is enumerated as an integer, this value is required
             // to provide fine tweaking of the deceleration..
-            val decelerationTweaker = 0.3f
+            val decelerationTweaker = 0.3F
 
             // calculate the speed required to reach the target given the desired
             // deceleration
@@ -226,14 +230,14 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         // for the evader's current position.
         val toEvader = evader!!.position.sub(vehicle.position)
         val relativeHeading = vehicle.heading.getDotProductValue(evader.heading)
-        if (toEvader.getDotProductValue(vehicle.heading) > 0 &&
-                relativeHeading < -0.95) // acos(0.95)=18degs
-        {
+        // acos(0.95) = 18degs
+        if (toEvader.getDotProductValue(vehicle.heading) > 0
+            && relativeHeading < -0.95F
+        ) {
             return doSeek(evader.position)
         }
 
-        // Not considered ahead so we predict where the evader will be.
-
+        // Not considered ahead, so we predict where the evader will be.
         // the lookahead time is proportional to the distance between the evader
         // and the pursuer; and is inversely proportional to the sum of the
         // agent's velocities
@@ -253,7 +257,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
         // uncomment the following two lines to have Evade only consider pursuers
         // within a 'threat range'
-        val threatRange = 100f
+        val threatRange = 100F
         if (toPursuer.lengthSqr > threatRange * threatRange) {
             return Vector2.newInstance()
         }
@@ -268,7 +272,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     }
 
     /**
-     * This behavior makes the agent wander about randomly
+     * This behavior makes the agent wander about randomly.
      */
     private fun doWander(): Vector2 {
         // this behavior is dependent on the update rate, so this line must
@@ -277,8 +281,10 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
         // first, add a small random vector to the target's position
         val temp2 = Vector2.newInstance().set(wanderTarget)
-                .add(MathUtility.randomClamped() * jitterThisTimeSlice,
-                        MathUtility.randomClamped() * jitterThisTimeSlice)
+            .add(
+                MathUtility.randomClamped() * jitterThisTimeSlice,
+                MathUtility.randomClamped() * jitterThisTimeSlice
+            )
 
         // re-project this new vector back on to a unit circle
         temp2.normalize()
@@ -288,11 +294,15 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         temp2.mul(wanderRadius)
 
         // move the target into a position WanderDist in front of the agent
-        val target = Vector2.newInstance().set(wanderDistance, 0f).add(temp2)
+        val target = Vector2.newInstance().set(wanderDistance, 0F).add(temp2)
 
         // project the target into world space
-        val targetToWorldSpace = Transformation.pointToWorldSpace(target, vehicle.heading, vehicle.side,
-                vehicle.position)
+        val targetToWorldSpace = Transformation.pointToWorldSpace(
+            target,
+            vehicle.heading,
+            vehicle.side,
+            vehicle.position
+        )
 
         // and steer towards it
         return targetToWorldSpace.sub(vehicle.position)
@@ -304,7 +314,8 @@ class SteeringBehavior(  // a pointer to the owner of this instance
      */
     private fun doObstacleAvoidance(obstacles: MutableList<BaseGameEntity>): Vector2 {
         // the detection box length is proportional to the agent's velocity
-        detectBoxLength = (paramLoader?.MIN_DETECTION_BOX_LENGTH?.plus(vehicle.speed / vehicle.maxSpeed * paramLoader.MIN_DETECTION_BOX_LENGTH)!!)
+        detectBoxLength =
+            (paramLoader?.MIN_DETECTION_BOX_LENGTH?.plus(vehicle.speed / vehicle.maxSpeed * paramLoader.MIN_DETECTION_BOX_LENGTH)!!)
 
         // tag all obstacles within range of the box for processing
         vehicle.world.tagObstaclesWithinViewRange(vehicle, detectBoxLength)
@@ -317,15 +328,19 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
         // this will record the transformed local coordinates of the CIB
         var localPosOfClosestObstacle = Vector2.newInstance().zero()
-        val it = obstacles.listIterator()
-        while (it.hasNext()) {
+        val iterator = obstacles.listIterator()
+        while (iterator.hasNext()) {
             // if the obstacle has been tagged within range proceed
-            val curOb = it.next()
-            if (curOb != null) {
-                if (curOb.isTagged) {
+            val obstacle = iterator.next()
+            obstacle.let {
+                if (it.isTagged) {
                     // calculate this obstacle's position in local space
-                    val localPos = Transformation.pointToLocalSpace(curOb.position, vehicle.heading,
-                            vehicle.side, vehicle.position)
+                    val localPos = Transformation.pointToLocalSpace(
+                        it.position,
+                        vehicle.heading,
+                        vehicle.side,
+                        vehicle.position
+                    )
 
                     // if the local position has a negative x value then it must lay
                     // behind the agent. (in which case it can be ignored)
@@ -333,8 +348,8 @@ class SteeringBehavior(  // a pointer to the owner of this instance
                         // if the distance from the x-axis to the object's position is less
                         // than its radius + half the width of the detection box then there
                         // is a potential intersection.
-                        val expandedRadius = curOb.boundingRadius + vehicle.boundingRadius
-                        if (Math.abs(localPos.y) < expandedRadius) {
+                        val expandedRadius = it.boundingRadius + vehicle.boundingRadius
+                        if (abs(localPos.y) < expandedRadius) {
                             // now to do a line/circle intersection test. The center of the
                             // circle is represented by (cX, cY). The intersection points are
                             // given by the formula x = cX +/-sqrt(r^2-cY^2) for y=0.
@@ -344,7 +359,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
                             val cY = localPos.y
 
                             // we only need to calculate the sqrt part of the above equation once
-                            val sqrtPart = Math.sqrt((expandedRadius * expandedRadius - cY * cY).toDouble()).toFloat()
+                            val sqrtPart = sqrt((expandedRadius * expandedRadius - cY * cY).toDouble()).toFloat()
                             var ip = cX - sqrtPart
                             if (ip <= 0.0) {
                                 ip = cX + sqrtPart
@@ -354,7 +369,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
                             // record of the obstacle and its local coordinates
                             if (ip < distToClosestIP) {
                                 distToClosestIP = ip
-                                closestIntersectingObstacle = curOb
+                                closestIntersectingObstacle = it
                                 localPosOfClosestObstacle = localPos
                             }
                         }
@@ -366,26 +381,29 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         // if we have found an intersecting obstacle, calculate a steering
         // force away from it
         val steeringForce = Vector2.newInstance().zero()
-        if (closestIntersectingObstacle != null) {
+        closestIntersectingObstacle?.let {
             // the closer the agent is to an object, the stronger the
             // steering force should be
             val multiplier = 1 + (detectBoxLength - localPosOfClosestObstacle.x) /
                     detectBoxLength
 
             // calculate the lateral force
-            steeringForce.y = ((closestIntersectingObstacle.boundingRadius - localPosOfClosestObstacle.y)
+            steeringForce.y = ((it.boundingRadius - localPosOfClosestObstacle.y)
                     * multiplier)
 
             // apply a braking force proportional to the obstacles distance from
             // the vehicle.
-            val brakingWeight = 0.2f
-            steeringForce.x = ((closestIntersectingObstacle.boundingRadius - localPosOfClosestObstacle.x)
+            val brakingWeight = 0.2F
+            steeringForce.x = ((it.boundingRadius - localPosOfClosestObstacle.x)
                     * brakingWeight)
         }
 
         // finally, convert the steering vector from local to world space
-        return Transformation.vectorToWorldSpace(steeringForce, vehicle.heading,
-                vehicle.side)
+        return Transformation.vectorToWorldSpace(
+            steeringForce,
+            vehicle.heading,
+            vehicle.side
+        )
     }
 
     /**
@@ -395,27 +413,36 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     private fun doWallAvoidance(walls: List<Wall>): Vector2 {
         // the feelers are contained in a list, m_Feelers
         createSensors()
-        var distToThisIP = 0f
+        var distToThisIP = 0F
         var distToClosestIP = MathUtility.MAX_FLOAT
 
         // this will hold an index into the vector of walls
         var closestWall = -1
         var steeringForce = Vector2.newInstance().zero()
-        var closestPoint = Vector2.newInstance().zero() // holds the closest intersection point
+        // holds the closest intersection point
+        var closestPoint = Vector2.newInstance().zero()
 
         // examine each feeler in turn
-        for (flr in sensors.indices) {
+        for (sensor in sensors) {
             // run through each wall checking for any intersection points
-            for (w in walls.indices) {
-                distToThisIP = Geometry.getDistanceTwoSegmentIntersect(vehicle.position, sensors[flr],
-                        walls[w].from, walls[w].to)
-                if (distToThisIP != -1f) {
+            for ((wallIndex, wall) in walls.withIndex()) {
+                distToThisIP = Geometry.getDistanceTwoSegmentIntersect(
+                    vehicle.position,
+                    sensor,
+                    wall.from,
+                    wall.to
+                )
+                if (distToThisIP != -1F) {
                     // is this the closest found so far? If so keep a record
                     if (distToThisIP < distToClosestIP) {
                         distToClosestIP = distToThisIP
-                        closestWall = w
-                        closestPoint = Geometry.getPointTwoSegmentIntersect(vehicle.position, sensors[flr],
-                                walls[w].from, walls[w].to)
+                        closestWall = wallIndex
+                        closestPoint = Geometry.getPointTwoSegmentIntersect(
+                            vehicle.position,
+                            sensor,
+                            wall.from,
+                            wall.to
+                        )
                     }
                 }
             } // next wall
@@ -425,14 +452,15 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             if (closestWall >= 0) {
                 // calculate by what distance the projected position of the agent
                 // will overshoot the wall
-                val overShoot = sensors[flr].sub(closestPoint)
+                val overShoot = sensor.sub(closestPoint)
 
                 // create a force in the direction of the wall normal, with a
                 // magnitude of the overshoot
                 steeringForce = Vector2.newInstance().set(walls[closestWall].normal)
-                        .mul(overShoot.length)
+                    .mul(overShoot.length)
             }
         } // next feeler
+
         return steeringForce.clone()
     }
 
@@ -441,19 +469,19 @@ class SteeringBehavior(  // a pointer to the owner of this instance
      */
     private fun doSeparation(neighbors: List<Vehicle>): Vector2 {
         val steeringForce = Vector2.newInstance().zero()
-        for (a in neighbors.indices) {
+        for (neighbor in neighbors) {
             // make sure this agent isn't included in the calculations and that
             // the agent being examined is close enough. ***also make sure it doesn't
             // include to evade target ***
-            if (neighbors[a] != vehicle && neighbors[a].isTagged
-                    && neighbors[a] != targetAgent1) {
-                val toAgent = Vector2.newInstance().set(vehicle.position).sub(neighbors[a].position)
+            if (neighbor != vehicle && neighbor.isTagged && neighbor != targetAgent1) {
+                val toAgent = Vector2.newInstance().set(vehicle.position).sub(neighbor.position)
 
                 // scale the force inversely proportional to the agents distance
                 // from its neighbor.
                 steeringForce.add(toAgent.normalize().div(toAgent.length))
             }
         }
+
         return steeringForce.clone()
     }
 
@@ -469,13 +497,12 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         var neighborCount = 0
 
         // iterate through all the tagged vehicles and sum their heading vectors
-        for (a in neighbors.indices) {
+        for (neighbor in neighbors) {
             // make sure *this* agent isn't included in the calculations and that
             // the agent being examined is close enough ***also make sure it doesn't
             // include any evade target ***
-            if (neighbors[a] != vehicle && neighbors[a].isTagged
-                    && neighbors[a] != targetAgent1) {
-                averageHeading.add(neighbors[a].heading)
+            if (neighbor != vehicle && neighbor.isTagged && neighbor != targetAgent1) {
+                averageHeading.add(neighbor.heading)
                 ++neighborCount
             }
         }
@@ -486,6 +513,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             averageHeading.div(neighborCount.toFloat())
             averageHeading.sub(vehicle.heading)
         }
+
         return averageHeading.clone()
     }
 
@@ -500,13 +528,12 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         var neighborCount = 0
 
         // iterate through the neighbors and sum up all the position vectors
-        for (a in neighbors.indices) {
+        for (neighbor in neighbors) {
             // make sure *this* agent isn't included in the calculations and that
             // the agent being examined is close enough ***also make sure it doesn't
-            // include the evade target ***
-            if (neighbors[a] != vehicle && neighbors[a].isTagged
-                    && neighbors[a] != targetAgent1) {
-                centerOfMass.add(neighbors[a].position)
+            // include to evade target ***
+            if (neighbor != vehicle && neighbor.isTagged && neighbor != targetAgent1) {
+                centerOfMass.add(neighbor.position)
                 ++neighborCount
             }
         }
@@ -522,13 +549,15 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         // alignment, so it usually helps to normalize it.
         return steeringForce.normalize()
     }
+
     /*
    * NOTE: the next three behaviors are the same as the above three, except that
    * they use a cell-space partition to find the neighbors
    */
+
     /**
      * This calculates a force re-pelling from the other neighbors.
-     * <br></br>
+     * <br>
      * USES SPACIAL PARTITIONING
      */
     private fun doSeparationPlus(neighbors: List<Vehicle>): Vector2 {
@@ -536,8 +565,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
         // iterate through the neighbors and sum up all the position vectors
         var pV = vehicle.world.cellSpace.frontOfNeighbor
-        while (!vehicle.world.cellSpace
-                        .isEndOfNeighbors) {
+        while (!vehicle.world.cellSpace.isEndOfNeighbors) {
 
             // make sure this agent isn't included in the calculations and that
             // the agent being examined is close enough
@@ -550,13 +578,14 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             }
             pV = vehicle.world.cellSpace.nextOfNeighbor
         }
+
         return steeringForce.clone()
     }
 
     /**
      * Returns a force that attempts to align this agents heading with that of its
      * neighbors.
-     * <br></br>
+     * <br>
      * USES SPACIAL PARTITIONING
      */
     private fun doAlignmentPlus(neighbors: List<Vehicle>): Vector2 {
@@ -564,12 +593,11 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         val averageHeading = Vector2.newInstance().zero()
 
         // This count the number of vehicles in the neighborhood
-        var neighborCount = 0f
+        var neighborCount = 0F
 
         // iterate through the neighbors and sum up all the position vectors
         var pV = vehicle.world.cellSpace.frontOfNeighbor
-        while (!vehicle.world.cellSpace
-                        .isEndOfNeighbors) {
+        while (!vehicle.world.cellSpace.isEndOfNeighbors) {
 
             // make sure *this* agent isn't included in the calculations and that
             // the agent being examined is close enough
@@ -592,7 +620,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     /**
      * Returns a steering force that attempts to move the agent towards the center
      * of mass of the agents in its immediate area.
-     * <br></br>
+     * <br>
      * USES SPACIAL PARTITIONING
      */
     private fun doCohesionPlus(neighbors: List<Vehicle>): Vector2 {
@@ -603,8 +631,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
         // iterate through the neighbors and sum up all the position vectors
         var pV = vehicle.world.cellSpace.frontOfNeighbor
-        while (!vehicle.world.cellSpace
-                        .isEndOfNeighbors) {
+        while (!vehicle.world.cellSpace.isEndOfNeighbors) {
 
             // make sure *this* agent isn't included in the calculations and that
             // the agent being examined is close enough
@@ -631,22 +658,22 @@ class SteeringBehavior(  // a pointer to the owner of this instance
      * Given two agents, this method returns a force that attempts to position the
      * vehicle between them.
      */
-    private fun doInterpose(agentA: Vehicle?, agentB: Vehicle?): Vector2 {
+    private fun doInterpose(agentA: Vehicle, agentB: Vehicle): Vector2 {
         // first we need to figure out where the two agents are going to be at
         // time T in the future. This is approximated by determining the time
         // taken to reach the midway point at the current time at max speed.
-        var midPoint = Vector2.newInstance().set(agentA!!.position).add(agentB!!.position).div(2f)
+        var midPoint = Vector2.newInstance().set(agentA.position).add(agentB.position).div(2F)
         val timeToReachMidPoint = vehicle.position.getDistanceValue(midPoint) / vehicle.maxSpeed
 
         // now we have T, we assume that agent A and agent B will continue on a
         // straight trajectory and extrapolate to get their future positions
         val aPos = Vector2.newInstance().set(agentA.velocity).mul(timeToReachMidPoint)
-                .add(agentA.position)
+            .add(agentA.position)
         val bPos = Vector2.newInstance().set(agentB.velocity).mul(timeToReachMidPoint)
-                .add(agentB.position)
+            .add(agentB.position)
 
         // calculate the mid-point of these predicted positions
-        midPoint = Vector2.newInstance().set(aPos).add(bPos).div(2f)
+        midPoint = Vector2.newInstance().set(aPos).add(bPos).div(2F)
 
         // then steer to Arrive at it
         return doArrive(midPoint, Deceleration.FAST)
@@ -655,18 +682,19 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     private fun doHide(hunter: Vehicle, obstacles: MutableList<BaseGameEntity>): Vector2 {
         var distToClosest = MathUtility.MAX_FLOAT
         var bestHidingSpot = Vector2.newInstance().zero()
-        val it = obstacles.listIterator()
-        while (it.hasNext()) {
-            val curOb = it.next()
+        val iterator = obstacles.listIterator()
+        while (iterator.hasNext()) {
+            val obstacle = iterator.next()
             // calculate the position of the hiding spot for this obstacle
-            val hidingSpot = curOb?.let { it1 -> getHidingPosition(it1.position, curOb.boundingRadius, hunter!!.position) }
+            val hidingSpot =
+                getHidingPosition(obstacle.position, obstacle.boundingRadius, hunter.position)
 
             // work in distance-squared space to find the closest hiding
             // spot to the agent
-            val dist = hidingSpot?.getDistanceSqrValue(vehicle.position)
-            if (dist != null) {
-                if (dist < distToClosest) {
-                    distToClosest = dist
+            val dist = hidingSpot.getDistanceSqrValue(vehicle.position)
+            dist.let {
+                if (it < distToClosest) {
+                    distToClosest = it
                     bestHidingSpot = hidingSpot
                 }
             }
@@ -675,9 +703,10 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         // if no suitable obstacles found then Evade the hunter
         return if (distToClosest == MathUtility.MAX_FLOAT) {
             doEvade(hunter)
-        } else doArrive(bestHidingSpot, Deceleration.FAST)
-
-        // else use Arrive on the hiding spot
+        } else {
+            // else use Arrive on the hiding spot
+            doArrive(bestHidingSpot, Deceleration.FAST)
+        }
     }
 
     /**
@@ -685,11 +714,10 @@ class SteeringBehavior(  // a pointer to the owner of this instance
      * this method calculates a position DistanceFromBoundary away from its bounding
      * radius and directly opposite the hunter.
      */
-    private fun getHidingPosition(posOb: Vector2, radiusOb: Float,
-                                  posHunter: Vector2): Vector2 {
+    private fun getHidingPosition(posOb: Vector2, radiusOb: Float, posHunter: Vector2): Vector2 {
         // calculate how far away the agent is to be from the chosen obstacle's
         // bounding radius
-        val distanceFromBoundary = 30f
+        val distanceFromBoundary = 30F
         val distAway = radiusOb + distanceFromBoundary
 
         // calculate the heading toward the object from the hunter
@@ -709,8 +737,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     private fun doFollowPath(): Vector2 {
         // move to next target if close enough to current target (working in
         // distance squared space)
-        if (path.currentWayPoint.getDistanceSqrValue(vehicle.position) <
-                waypointSeekDistanceSqr) {
+        if (path.currentWayPoint.getDistanceSqrValue(vehicle.position) < waypointSeekDistanceSqr) {
             path.setToNextWayPoint()
         }
         return if (!path.isEndOfWayPoints) {
@@ -724,10 +751,14 @@ class SteeringBehavior(  // a pointer to the owner of this instance
      * Produces a steering force that keeps a vehicle at a specified offset from a
      * leader vehicle.
      */
-    private fun doOffsetPursuit(leader: Vehicle?, offset: Vector2?): Vector2 {
+    private fun doOffsetPursuit(leader: Vehicle, offset: Vector2): Vector2 {
         // calculate the offset's position in world space
-        val worldOffsetPos = Transformation.pointToWorldSpace(offset, leader!!.heading, leader.side,
-                leader.position)
+        val worldOffsetPos = Transformation.pointToWorldSpace(
+            offset,
+            leader.heading,
+            leader.side,
+            leader.position
+        )
         val toOffset = worldOffsetPos.sub(vehicle.position)
 
         // the lookahead time is proportional to the distance between the leader
@@ -736,8 +767,10 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         val lookAheadTime = toOffset.length / (vehicle.maxSpeed + leader.speed)
 
         // now Arrive at the predicted future position of the offset
-        return doArrive(leader.velocity.mul(lookAheadTime).add(worldOffsetPos),
-                Deceleration.FAST)
+        return doArrive(
+            leader.velocity.mul(lookAheadTime).add(worldOffsetPos),
+            Deceleration.FAST
+        )
     }
 
     /**
@@ -746,6 +779,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
     override fun render(paint: Paint) {
         paint.enableOpaqueText(false)
         paint.setTextColor(Color.GRAY)
+
         var nextSlot = paint.fontHeight
         val slotSize = 20
         if (vehicle.maxForce < 0) {
@@ -756,8 +790,11 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         }
         if (vehicle.id === "dragon") {
             paint.drawTextAtPosition(5, nextSlot, "MaxForce(Ins/Del):")
-            paint.drawTextAtPosition(160, nextSlot, (vehicle.maxForce / (paramLoader?.STEERING_FORCE_TWEAKER ?: 1F))
-                    .toString())
+            paint.drawTextAtPosition(
+                160,
+                nextSlot,
+                (vehicle.maxForce / (paramLoader?.STEERING_FORCE_TWEAKER ?: 1F)).toString()
+            )
             nextSlot += slotSize
         }
         if (vehicle.id === "dragon") {
@@ -769,12 +806,14 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         // render the steering force
         if (vehicle.world.isRenderSteeringForce) {
             paint.setPenColor(Color.RED)
-            val F = paramLoader?.let {
+            val force = paramLoader?.let {
                 Vector2.newInstance().set(force).div(it.STEERING_FORCE_TWEAKER)
-                        .mul(paramLoader.VEHICLE_SCALE)
+                    .mul(paramLoader.VEHICLE_SCALE)
             }
-            paint.drawLine(vehicle.position,
-                    Vector2.newInstance().set(vehicle.position.add(F)))
+            paint.drawLine(
+                vehicle.position,
+                Vector2.newInstance().set(vehicle.position.add(force))
+            )
         }
 
         // render wander stuff if relevant
@@ -797,9 +836,11 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
             // calculate the center of to wander circle
             val vTCC = Transformation.pointToWorldSpace(
-                    Vector2.newInstance().set(wanderDistance * vehicle.boundingRadius, 0f),
-                    vehicle.heading,
-                    vehicle.side, vehicle.position)
+                Vector2.newInstance().set(wanderDistance * vehicle.boundingRadius, 0F),
+                vehicle.heading,
+                vehicle.side,
+                vehicle.position
+            )
             // draw to wander circle
             paint.setPenColor(Color.GREEN)
             paint.setBgColor(null)
@@ -807,10 +848,15 @@ class SteeringBehavior(  // a pointer to the owner of this instance
 
             // draw to wander target
             paint.setPenColor(Color.RED)
-            paint.drawCircle(Transformation.pointToWorldSpace(
-                    Vector2.newInstance().set(wanderTarget).add(wanderDistance, 0f)
-                            .mul(vehicle.boundingRadius),
-                    vehicle.heading, vehicle.side, vehicle.position), 3f)
+            paint.drawCircle(
+                Transformation.pointToWorldSpace(
+                    Vector2.newInstance().set(wanderTarget).add(wanderDistance, 0F)
+                        .mul(vehicle.boundingRadius),
+                    vehicle.heading,
+                    vehicle.side,
+                    vehicle.position
+                ), 3F
+            )
         }
 
         // render the detection box if relevant
@@ -825,14 +871,22 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             detectBox.add(Vector2.newInstance().set(length, vehicle.boundingRadius))
             detectBox.add(Vector2.newInstance().set(length, -vehicle.boundingRadius))
             detectBox.add(Vector2.newInstance().set(0f, -vehicle.boundingRadius))
+
             if (!vehicle.isSmoothing) {
-                detectBox = Transformation.pointsToWorldSpace(detectBox, vehicle.position,
-                        vehicle.heading, vehicle.side)
+                detectBox = Transformation.pointsToWorldSpace(
+                    detectBox,
+                    vehicle.position,
+                    vehicle.heading,
+                    vehicle.side
+                )
                 paint.drawClosedShape(detectBox)
             } else {
-                detectBox = Transformation.pointsToWorldSpace(detectBox, vehicle.position,
-                        vehicle.getSmoothedHeading(),
-                        Vector2.newInstance().set(vehicle.getSmoothedHeading()).perpendicular())
+                detectBox = Transformation.pointsToWorldSpace(
+                    detectBox,
+                    vehicle.position,
+                    vehicle.getSmoothedHeading(),
+                    Vector2.newInstance().set(vehicle.getSmoothedHeading()).perpendicular()
+                )
                 paint.drawClosedShape(detectBox)
             }
 
@@ -844,21 +898,25 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             vehicle.world.tagObstaclesWithinViewRange(vehicle, detectBoxLength)
             val obstacles = vehicle.world.obstacles.listIterator()
             while (obstacles.hasNext()) {
-                val curOb = obstacles.next()
+                val obstacle = obstacles.next()
                 // if the obstacle has been tagged within range proceed
-                if (curOb != null) {
-                    if (curOb.isTagged) {
+                obstacle.let {
+                    if (it.isTagged) {
                         // calculate this obstacle's position in local space
-                        val localPos = Transformation.pointToLocalSpace(curOb?.position ?: Vector2.newInstance(), vehicle.heading,
-                                vehicle.side, vehicle.position)
+                        val localPos = Transformation.pointToLocalSpace(
+                            it.position ?: Vector2.newInstance(),
+                            vehicle.heading,
+                            vehicle.side,
+                            vehicle.position
+                        )
 
                         // if the local position has a negative x value then it must lay
                         // behind the agent. (in which case it can be ignored)
                         if (localPos.x >= 0) {
-                            // if the distance from the x axis to the object's position is less
+                            // if the distance from the x-axis to the object's position is less
                             // than its radius + half the width of the detection box then there
                             // is a potential intersection.
-                            if (Math.abs(localPos.y) < curOb.boundingRadius + vehicle.boundingRadius) {
+                            if (abs(localPos.y) < it.boundingRadius + vehicle.boundingRadius) {
                                 paint.setPenColor(Color.RED)
                                 paint.drawClosedShape(detectBox)
                             }
@@ -871,8 +929,8 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         // render the wall avoidance feelers
         if (isBehavior(Behavior.WALL_AVOIDANCE) && vehicle.world.isRenderSensors) {
             paint.setPenColor(Color.ORANGE)
-            for (flr in sensors.indices) {
-                paint.drawLine(vehicle.position, sensors[flr])
+            for (sensor in sensors) {
+                paint.drawLine(vehicle.position, sensor)
             }
         }
 
@@ -880,32 +938,41 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         if (isBehavior(Behavior.FOLLOW_PATH) && vehicle.world.isRenderPath) {
             path.render(paint)
         }
+
         if (isBehavior(Behavior.SEPARATION)) {
             if (vehicle.id === "dragon") {
                 paint.drawTextAtPosition(5, nextSlot, "Separation(S/X):")
-                paint.drawTextAtPosition(160, nextSlot, (separationWeight / (paramLoader?.STEERING_FORCE_TWEAKER ?:
-                1F)).toString())
+                paint.drawTextAtPosition(
+                    160, nextSlot, (separationWeight / (paramLoader?.STEERING_FORCE_TWEAKER ?: 1F)).toString()
+                )
                 nextSlot += slotSize
             }
         }
+
         if (isBehavior(Behavior.ALIGNMENT)) {
             if (vehicle.id === "dragon") {
                 paint.drawTextAtPosition(5, nextSlot, "Alignment(A/Z):")
-                paint.drawTextAtPosition(160, nextSlot, (alignmentWeight / (paramLoader?.STEERING_FORCE_TWEAKER ?: 1F)
-                        ).toString())
+                paint.drawTextAtPosition(
+                    160, nextSlot, (alignmentWeight / (paramLoader?.STEERING_FORCE_TWEAKER ?: 1F)
+                            ).toString()
+                )
                 nextSlot += slotSize
             }
         }
+
         if (isBehavior(Behavior.COHESION)) {
             if (vehicle.id === "dragon") {
                 paint.drawTextAtPosition(5, nextSlot, "Cohesion(D/C):")
-                paint.drawTextAtPosition(160, nextSlot, (cohesionWeight / (paramLoader?.STEERING_FORCE_TWEAKER ?: 1F))
-                        .toString())
+                paint.drawTextAtPosition(
+                    160, nextSlot, (cohesionWeight / (paramLoader?.STEERING_FORCE_TWEAKER ?: 1F))
+                        .toString()
+                )
                 nextSlot += slotSize
             }
         }
+
         if (isBehavior(Behavior.FOLLOW_PATH)) {
-            val sd = Math.sqrt(waypointSeekDistanceSqr.toDouble()).toFloat()
+            val sd = sqrt(waypointSeekDistanceSqr.toDouble()).toFloat()
             if (vehicle.id === "dragon") {
                 paint.drawTextAtPosition(5, nextSlot, "SeekDistance(D/C):")
                 paint.drawTextAtPosition(160, nextSlot, sd.toString())
@@ -913,12 +980,13 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             }
         }
     }
+
     // ---------------------------- CALCULATE METHODS ----------------------------
     //
     // ---------------------------------------------------------------------------
     /**
      * Calculates the accumulated steering force according to the method set in
-     * m_SummingMethod.
+     * summingMethod.
      */
     fun calculateAccumulate(): Vector2 {
         // reset the steering force
@@ -928,24 +996,23 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         // if switched on. If not, use the standard tagging system
         if (!isSpacePartitioning) {
             // tag neighbors if any of the following 3 group behaviors are switched on
-            if (isBehavior(Behavior.SEPARATION) || isBehavior(Behavior.ALIGNMENT)
-                    || isBehavior(Behavior.COHESION)) {
-                // vehicle.getWorld().tagVehiclesWithinViewRange(vehicle, 0.01f);
+            if (isBehavior(Behavior.SEPARATION) || isBehavior(Behavior.ALIGNMENT) || isBehavior(Behavior.COHESION)) {
+                // vehicle.world.tagVehiclesWithinViewRange(vehicle, 10F)
             }
         } else {
             // calculate neighbors in cell-space if any of the following 3 group
             // behaviors are switched on
-            if (isBehavior(Behavior.SEPARATION) || isBehavior(Behavior.ALIGNMENT)
-                    || isBehavior(Behavior.COHESION)) {
-                vehicle.world.cellSpace.calculateNeighbors(vehicle.position, 10f)
+            if (isBehavior(Behavior.SEPARATION) || isBehavior(Behavior.ALIGNMENT) || isBehavior(Behavior.COHESION)) {
+                vehicle.world.cellSpace.calculateNeighbors(vehicle.position, 10F)
             }
         }
+
         when (summingMethod) {
             SummingMethod.WEIGHTED_AVERAGE -> force = calculateWeightedSum
             SummingMethod.PRIORITIZED -> calculatePrioritized()
             SummingMethod.DITHERED -> force = calculateDithered
-            else -> force = Vector2.newInstance()
         }
+
         return force
     }
 
@@ -972,14 +1039,17 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             val force = doWallAvoidance(vehicle.world.walls).mul(weightWallAvoidance)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.OBSTACLE_AVOIDANCE)) {
             val force = doObstacleAvoidance(vehicle.world.obstacles).mul(weightObstacleAvoidance)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.EVADE)) {
             val force = doEvade(targetAgent1).mul(weightEvade)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.FLEE)) {
             val force = doFlee(vehicle.world.crosshair).mul(weightFlee)
             accumulateForce(force)
@@ -1014,40 +1084,51 @@ class SteeringBehavior(  // a pointer to the owner of this instance
                 accumulateForce(force)
             }
         }
+
         if (isBehavior(Behavior.SEEK)) {
             val force = doSeek(vehicle.world.crosshair).mul(weightSeek)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.ARRIVE)) {
             val force = doArrive(vehicle.world.crosshair, deceleration).mul(weightArrive)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.WANDER)) {
             val force = doWander().mul(weightWander)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.PURSUIT)) {
             val force = doPursuit(targetAgent1).mul(weightPursuit)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.OFFSET_PURSUIT)) {
             val force = doOffsetPursuit(targetAgent1, offset)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.INTERPOSE)) {
             val force = doInterpose(targetAgent1, targetAgent2).mul(weightInterpose)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.HIDE)) {
             val force = doHide(targetAgent1, vehicle.world.obstacles).mul(weightHide)
             accumulateForce(force)
         }
+
         if (isBehavior(Behavior.FOLLOW_PATH)) {
             val force = doFollowPath().mul(weightFollowPath)
             accumulateForce(force)
         }
-    }// these next three can be combined for flocking behavior (wander is
+    }
+
+    // these next three can be combined for flocking behavior (wander is
     // also a good behavior to add into this mix)
+
     /**
      * This simply sums up all the active behaviors X their weights and truncates
      * the result to the max available steering force before returning.
@@ -1056,11 +1137,11 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         private get() {
             if (isBehavior(Behavior.WALL_AVOIDANCE)) {
                 force.add(doWallAvoidance(vehicle.world.walls))
-                        .mul(weightWallAvoidance)
+                    .mul(weightWallAvoidance)
             }
             if (isBehavior(Behavior.OBSTACLE_AVOIDANCE)) {
                 force.add(doObstacleAvoidance(vehicle.world.obstacles))
-                        .mul(weightObstacleAvoidance)
+                    .mul(weightObstacleAvoidance)
             }
             if (isBehavior(Behavior.EVADE)) {
                 force.add(doEvade(targetAgent1)).mul(weightEvade)
@@ -1081,7 +1162,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             } else {
                 if (isBehavior(Behavior.SEPARATION)) {
                     force.add(doSeparationPlus(vehicle.world.agents))
-                            .mul(separationWeight)
+                        .mul(separationWeight)
                 }
                 if (isBehavior(Behavior.ALIGNMENT)) {
                     force.add(doAlignmentPlus(vehicle.world.agents)).mul(alignmentWeight)
@@ -1101,7 +1182,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             }
             if (isBehavior(Behavior.ARRIVE)) {
                 force.add(doArrive(vehicle.world.crosshair, deceleration))
-                        .mul(weightArrive)
+                    .mul(weightArrive)
             }
             if (isBehavior(Behavior.PURSUIT)) {
                 force.add(doPursuit(targetAgent1)).mul(weightPursuit)
@@ -1114,14 +1195,15 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             }
             if (isBehavior(Behavior.HIDE)) {
                 force.add(doHide(targetAgent1, vehicle.world.obstacles))
-                        .mul(weightHide)
+                    .mul(weightHide)
             }
             if (isBehavior(Behavior.FOLLOW_PATH)) {
                 force.add(doFollowPath()).mul(weightFollowPath)
             }
             force.truncate(vehicle.maxForce)
+
             return force
-        }// reset the steering force
+        }
 
     /**
      * This method sums up the active behaviors by assigning a probability of being
@@ -1130,8 +1212,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
      * force resulting from this behavior. If it is more than zero it returns the
      * force. If zero, or if the behavior is skipped it continues onto the next
      * priority, and so on.
-     *
-     *
+     *<br>
      * NOTE: Not all the behaviors have been implemented in this method, just a
      * few, so you get the general idea
      */
@@ -1140,18 +1221,22 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             // reset the steering force
             force.zero()
             if (isBehavior(Behavior.WALL_AVOIDANCE) &&
-                    MathUtility.randFloat() < paramLoader?.PR_WALL_AVOIDANCE ?: 0F) {
+                MathUtility.randFloat() < (paramLoader?.PR_WALL_AVOIDANCE ?: 0F)
+            ) {
                 force = doWallAvoidance(vehicle.world.walls)
-                        .mul(weightWallAvoidance / (paramLoader?.PR_WALL_AVOIDANCE ?: 0F))
+                    .mul(weightWallAvoidance / (paramLoader?.PR_WALL_AVOIDANCE ?: 0F))
                 if (!force.isZero) {
                     force.truncate(vehicle.maxForce)
                     return force
                 }
             }
             if (isBehavior(Behavior.OBSTACLE_AVOIDANCE)
-                    && MathUtility.randFloat() < paramLoader?.PR_OBSTACLE_AVOIDANCE ?: 0F) {
-                force.add(doObstacleAvoidance(vehicle.world.obstacles)
-                        .mul(weightObstacleAvoidance / (paramLoader?.PR_OBSTACLE_AVOIDANCE ?: 0F)))
+                && MathUtility.randFloat() < (paramLoader?.PR_OBSTACLE_AVOIDANCE ?: 0F)
+            ) {
+                force.add(
+                    doObstacleAvoidance(vehicle.world.obstacles)
+                        .mul(weightObstacleAvoidance / (paramLoader?.PR_OBSTACLE_AVOIDANCE ?: 0F))
+                )
                 if (!force.isZero) {
                     force.truncate(vehicle.maxForce)
                     return force
@@ -1159,9 +1244,12 @@ class SteeringBehavior(  // a pointer to the owner of this instance
             }
             if (!isSpacePartitioning) {
                 if (isBehavior(Behavior.SEPARATION) &&
-                        MathUtility.randFloat() < paramLoader?.PR_SEPARATION ?: 0F) {
-                    force.add(doSeparation(vehicle.world.agents)
-                            .mul(separationWeight / (paramLoader?.PR_SEPARATION ?: 0F)))
+                    MathUtility.randFloat() < (paramLoader?.PR_SEPARATION ?: 0F)
+                ) {
+                    force.add(
+                        doSeparation(vehicle.world.agents)
+                            .mul(separationWeight / (paramLoader?.PR_SEPARATION ?: 0F))
+                    )
                     if (!force.isZero) {
                         force.truncate(vehicle.maxForce)
                         return force
@@ -1169,24 +1257,26 @@ class SteeringBehavior(  // a pointer to the owner of this instance
                 }
             } else {
                 if (isBehavior(Behavior.SEPARATION) &&
-                        MathUtility.randFloat() < paramLoader?.PR_SEPARATION ?: 0F) {
-                    force.add(doSeparationPlus(vehicle.world.agents)
-                            .mul(separationWeight / (paramLoader?.PR_SEPARATION ?: 0F)))
+                    MathUtility.randFloat() < (paramLoader?.PR_SEPARATION ?: 0F)
+                ) {
+                    force.add(
+                        doSeparationPlus(vehicle.world.agents)
+                            .mul(separationWeight / (paramLoader?.PR_SEPARATION ?: 0F))
+                    )
                     if (!force.isZero) {
                         force.truncate(vehicle.maxForce)
                         return force
                     }
                 }
             }
-            if (isBehavior(Behavior.FLEE) && MathUtility.randFloat() < paramLoader?.PR_FLEE ?: 0F) {
-                force
-                        .add(doFlee(vehicle.world.crosshair).mul(weightFlee / (paramLoader?.PR_FLEE ?: 0F)))
+            if (isBehavior(Behavior.FLEE) && MathUtility.randFloat() < (paramLoader?.PR_FLEE ?: 0F)) {
+                force.add(doFlee(vehicle.world.crosshair).mul(weightFlee / (paramLoader?.PR_FLEE ?: 0F)))
                 if (!force.isZero) {
                     force.truncate(vehicle.maxForce)
                     return force
                 }
             }
-            if (isBehavior(Behavior.EVADE) && MathUtility.randFloat() < paramLoader?.PR_EVADE ?: 0F) {
+            if (isBehavior(Behavior.EVADE) && MathUtility.randFloat() < (paramLoader?.PR_EVADE ?: 0F)) {
                 force.add(doEvade(targetAgent1).mul(weightEvade / (paramLoader?.PR_EVADE ?: 0F)))
                 if (!force.isZero) {
                     force.truncate(vehicle.maxForce)
@@ -1194,58 +1284,68 @@ class SteeringBehavior(  // a pointer to the owner of this instance
                 }
             }
             if (!isSpacePartitioning) {
-                if (isBehavior(Behavior.ALIGNMENT) && MathUtility.randFloat() < paramLoader?.PR_ALIGNMENT ?: 0F) {
-                    force.add(doAlignment(vehicle.world.agents)
-                            .mul(alignmentWeight / (paramLoader?.PR_ALIGNMENT ?: 0F)))
+                if (isBehavior(Behavior.ALIGNMENT) && MathUtility.randFloat() < (paramLoader?.PR_ALIGNMENT ?: 0F)) {
+                    force.add(
+                        doAlignment(vehicle.world.agents)
+                            .mul(alignmentWeight / (paramLoader?.PR_ALIGNMENT ?: 0F))
+                    )
                     if (!force.isZero) {
                         force.truncate(vehicle.maxForce)
                         return force
                     }
                 }
-                if (isBehavior(Behavior.COHESION) && MathUtility.randFloat() < paramLoader?.PR_COHESION ?: 0F) {
-                    force.add(doCohesion(vehicle.world.agents)
-                            .mul(cohesionWeight / (paramLoader?.PR_COHESION ?: 0F)))
+                if (isBehavior(Behavior.COHESION) && MathUtility.randFloat() < (paramLoader?.PR_COHESION ?: 0F)) {
+                    force.add(
+                        doCohesion(vehicle.world.agents)
+                            .mul(cohesionWeight / (paramLoader?.PR_COHESION ?: 0F))
+                    )
                     if (!force.isZero) {
                         force.truncate(vehicle.maxForce)
                         return force
                     }
                 }
             } else {
-                if (isBehavior(Behavior.ALIGNMENT) && MathUtility.randFloat() < paramLoader?.PR_ALIGNMENT ?: 0F) {
-                    force.add(doAlignmentPlus(vehicle.world.agents)
-                            .mul(alignmentWeight / (paramLoader?.PR_ALIGNMENT ?: 0F)))
+                if (isBehavior(Behavior.ALIGNMENT) && MathUtility.randFloat() < (paramLoader?.PR_ALIGNMENT ?: 0F)) {
+                    force.add(
+                        doAlignmentPlus(vehicle.world.agents)
+                            .mul(alignmentWeight / (paramLoader?.PR_ALIGNMENT ?: 0F))
+                    )
                     if (!force.isZero) {
                         force.truncate(vehicle.maxForce)
                         return force
                     }
                 }
-                if (isBehavior(Behavior.COHESION) && MathUtility.randFloat() < paramLoader?.PR_COHESION ?: 0F) {
-                    force.add(doCohesionPlus(vehicle.world.agents)
-                            .mul(cohesionWeight / (paramLoader?.PR_COHESION ?: 0F)))
+                if (isBehavior(Behavior.COHESION) && MathUtility.randFloat() < (paramLoader?.PR_COHESION ?: 0F)) {
+                    force.add(
+                        doCohesionPlus(vehicle.world.agents)
+                            .mul(cohesionWeight / (paramLoader?.PR_COHESION ?: 0F))
+                    )
                     if (!force.isZero) {
                         force.truncate(vehicle.maxForce)
                         return force
                     }
                 }
             }
-            if (isBehavior(Behavior.WANDER) && MathUtility.randFloat() < paramLoader?.PR_WANDER ?: 0F) {
+            if (isBehavior(Behavior.WANDER) && MathUtility.randFloat() < (paramLoader?.PR_WANDER ?: 0F)) {
                 force.add(doWander().mul(weightWander / (paramLoader?.PR_WANDER ?: 0F)))
                 if (!force.isZero) {
                     force.truncate(vehicle.maxForce)
                     return force
                 }
             }
-            if (isBehavior(Behavior.SEEK) && MathUtility.randFloat() < paramLoader?.PR_SEEK ?: 0F) {
+            if (isBehavior(Behavior.SEEK) && MathUtility.randFloat() < (paramLoader?.PR_SEEK ?: 0F)) {
                 force
-                        .add(doSeek(vehicle.world.crosshair).mul(weightSeek / (paramLoader?.PR_SEEK ?: 0F)))
+                    .add(doSeek(vehicle.world.crosshair).mul(weightSeek / (paramLoader?.PR_SEEK ?: 0F)))
                 if (!force.isZero) {
                     force.truncate(vehicle.maxForce)
                     return force
                 }
             }
-            if (isBehavior(Behavior.ARRIVE) && MathUtility.randFloat() < paramLoader?.PR_ARRIVE ?: 0F) {
-                force.add(doArrive(vehicle.world.crosshair, deceleration)
-                        .mul(weightArrive / (paramLoader?.PR_ARRIVE ?: 0F)))
+            if (isBehavior(Behavior.ARRIVE) && MathUtility.randFloat() < (paramLoader?.PR_ARRIVE ?: 0F)) {
+                force.add(
+                    doArrive(vehicle.world.crosshair, deceleration)
+                        .mul(weightArrive / (paramLoader?.PR_ARRIVE ?: 0F))
+                )
                 if (!force.isZero) {
                     force.truncate(vehicle.maxForce)
                     return force
@@ -1282,15 +1382,15 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         behaviorFlag = behaviorFlag or Behavior.WANDER.get()
     }
 
-    fun setCohesionOn() {
+    private fun setCohesionOn() {
         behaviorFlag = behaviorFlag or Behavior.COHESION.get()
     }
 
-    fun setSeparationOn() {
+    private fun setSeparationOn() {
         behaviorFlag = behaviorFlag or Behavior.SEPARATION.get()
     }
 
-    fun setAlignmentOn() {
+    private fun setAlignmentOn() {
         behaviorFlag = behaviorFlag or Behavior.ALIGNMENT.get()
     }
 
@@ -1343,7 +1443,7 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         }
     }
 
-    fun setWanderOff() {
+    private fun setWanderOff() {
         if (isBehavior(Behavior.WANDER)) {
             behaviorFlag = behaviorFlag xor Behavior.WANDER.get()
         }
@@ -1361,19 +1461,19 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         }
     }
 
-    fun setCohesionOff() {
+    private fun setCohesionOff() {
         if (isBehavior(Behavior.COHESION)) {
             behaviorFlag = behaviorFlag xor Behavior.COHESION.get()
         }
     }
 
-    fun setSeparationOff() {
+    private fun setSeparationOff() {
         if (isBehavior(Behavior.SEPARATION)) {
             behaviorFlag = behaviorFlag xor Behavior.SEPARATION.get()
         }
     }
 
-    fun setAlignmentOff() {
+    private fun setAlignmentOff() {
         if (isBehavior(Behavior.ALIGNMENT)) {
             behaviorFlag = behaviorFlag xor Behavior.ALIGNMENT.get()
         }
@@ -1517,8 +1617,10 @@ class SteeringBehavior(  // a pointer to the owner of this instance
         val theta = MathUtility.randFloat() * MathUtility.TWO_PI
 
         // create a vector to a target position on to wander circle
-        wanderTarget = Vector2.valueOf((wanderRadius * Math.cos(theta.toDouble())).toFloat(),
-                (wanderRadius * Math.sin(theta.toDouble())).toFloat())
+        wanderTarget = Vector2.valueOf(
+            (wanderRadius * cos(theta.toDouble())).toFloat(),
+            (wanderRadius * sin(theta.toDouble())).toFloat()
+        )
 
         // create a Path
         path = Path()

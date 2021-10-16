@@ -7,8 +7,8 @@ import java.io.IOException
  * Class to configuration.
  */
 class ParamLoader private constructor() : FileLoaderBase("src/main/resources/params.ini") {
+
     companion object {
-        @JvmStatic
         var instance: ParamLoader? = null
             private set
 
@@ -21,48 +21,29 @@ class ParamLoader private constructor() : FileLoaderBase("src/main/resources/par
         }
     }
 
-    @JvmField
     var NUM_AGENTS: Int = 0
 
-    @JvmField
     var NUM_OBSTACLES: Int = 0
-
-    @JvmField
     var MIN_OBSTACLE_RADIUS: Float = 0F
-
-    @JvmField
     var MAX_OBSTACLE_RADIUS: Float = 0F
 
     // number of horizontal cells used for spatial partitioning
-    @JvmField
     var NUM_CELLS_X: Int = 0
 
     // number of vertical cells used for spatial partitioning
-    @JvmField
     var NUM_CELLS_Y: Int = 0
 
     // how many samples the smoother will use to average a value
-    @JvmField
     var NUM_SAMPLES_FOR_SMOOTHING: Int = 0
 
     // used to tweak the combined steering force (simply altering the
     // MaxSteeringForce
     // will NOT work! This tweaker affects all the steering force multipliers too)
     var STEERING_FORCE_TWEAKER: Float = 0F
-
-    @JvmField
     var MAX_STEERING_FORCE: Float = 0F
-
-    @JvmField
     var MAX_SPEED: Float = 0F
-
-    @JvmField
     var VEHICLE_MASS: Float = 0F
-
-    @JvmField
     var VEHICLE_SCALE: Float = 0F
-
-    @JvmField
     var MAX_TURN_RATE_PER_SECOND: Float = 0F
     var SEPARATION_WEIGHT: Float = 0F
     var ALIGNMENT_WEIGHT: Float = 0F
@@ -82,7 +63,6 @@ class ParamLoader private constructor() : FileLoaderBase("src/main/resources/par
 
     // how close a neighbor must be before an agent perceives it (considers it
     // to be within its neighborhood)
-    @JvmField
     var VIEW_DISTANCE: Float = 0F
 
     // used in obstacle avoidance

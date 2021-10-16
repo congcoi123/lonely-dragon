@@ -414,12 +414,7 @@ class World(
             )
             dragon.index = index
 
-            // Set the unique id for the big guy
-            if (index == 0) {
-                dragon.id = "dragon"
-                dragon.setPosition((clientX / 2) * 1F, (clientY / 2) * 1F)
-            }
-            dragon.behavior.setFlockingOn()
+            // add to the list
             dragons.add(dragon)
 
             // add it to the cell subdivision
@@ -428,11 +423,16 @@ class World(
 
         val enableShoal = true
         if (enableShoal) {
+            // predator
             dragons[paramLoader.NUM_AGENTS - 1].behavior.setFlockingOff()
-            dragons[paramLoader.NUM_AGENTS - 1].scale = Vector2.valueOf(10f, 10f)
             dragons[paramLoader.NUM_AGENTS - 1].behavior.setWanderOn()
+            dragons[paramLoader.NUM_AGENTS - 1].id = "dragon"
+            dragons[paramLoader.NUM_AGENTS - 1].scale = Vector2.valueOf(10f, 10f)
             dragons[paramLoader.NUM_AGENTS - 1].maxSpeed = 70f
+
+            // preys
             for (i in 0 until paramLoader.NUM_AGENTS - 1) {
+                dragons[i].behavior.setFlockingOn()
                 dragons[i].behavior.setEvadeOn(dragons[paramLoader.NUM_AGENTS - 1])
             }
         }

@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.handler
 
-import com.congcoi123.lonely.dragon.constant.Example4Constant
+import com.congcoi123.lonely.dragon.constant.LDConstant
 import com.congcoi123.lonely.dragon.entity.Vehicle
 import com.congcoi123.lonely.dragon.utility.SharedEventKey
 import com.congcoi123.lonely.dragon.world.World
@@ -42,7 +42,7 @@ class ServerInitializedHandler : AbstractExtension(), EventServerInitialization 
     private val heartBeatManager: HeartBeatManager? = null
 
     override fun handle(serverName: String, configuration: Configuration) {
-        val world = World(Example4Constant.DESIGN_WIDTH, Example4Constant.DESIGN_HEIGHT)
+        val world = World(LDConstant.DESIGN_WIDTH, LDConstant.DESIGN_HEIGHT)
         world.debug("Lonely Dragon")
 
         world.worldListener = object : WorldListener {

@@ -1,21 +1,21 @@
 package com.congcoi123.lonely.dragon.configuration
 
 import java.io.BufferedReader
-import kotlin.Throws
-import java.io.IOException
-import java.lang.RuntimeException
-import java.io.FileReader
 import java.io.FileNotFoundException
+import java.io.FileReader
+import java.io.IOException
 import java.util.regex.Pattern
 
 /**
  * This class is used for configuration loader.
  */
-abstract class FileLoaderBase(filename: String?) {
+abstract class FileLoaderBase(filename: String) {
+
     private var file: BufferedReader? = null
     private var line: String? = ""
     var isFileIsGood: Boolean
-    private fun getParameterValueAsString(line: String?): String {
+
+    private fun getParameterValueAsString(line: String): String {
         // define some delimiters
         val delims = "[ ;=,]"
         val pattern = Pattern.compile(delims)
@@ -24,8 +24,8 @@ abstract class FileLoaderBase(filename: String?) {
             s[s.size - 1]
         } else ""
     }
-    // this will be the string that holds the next parameter
 
+    // this will be the string that holds the next parameter
     // if the line is of zero length, get the next line from
     // the file
     @get:Throws(IOException::class)
@@ -38,16 +38,16 @@ abstract class FileLoaderBase(filename: String?) {
 
             // if the line is of zero length, get the next line from
             // the file
-            if (line!!.length == 0) {
+            if (line!!.isEmpty()) {
                 return nextParameter
             }
             line = getParameterValueAsString(line)
             return line
-        }// strip the token from the line
+        }
+
+    // strip the token from the line
     // strip the line of any commenting
-
     // find beginning of parameter description
-
     // define some delimiters
     @get:Throws(IOException::class)
     private val nextToken: String
@@ -185,6 +185,7 @@ abstract class FileLoaderBase(filename: String?) {
     init {
         line = ""
         isFileIsGood = true
+
         try {
             file = BufferedReader(FileReader(filename))
         } catch (ex: FileNotFoundException) {

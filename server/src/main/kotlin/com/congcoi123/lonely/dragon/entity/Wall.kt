@@ -32,27 +32,38 @@ import com.tenio.engine.physic2d.math.Vector2
  * A - B with a perpendicular normal.
  */
 class Wall : Renderable {
-    var fromX = 0f
+
+    var fromX = 0F
         private set
-    var fromY = 0f
+
+    var fromY = 0F
         private set
-    private val vectorA: Vector2? = null
-    var toX = 0f
+    private val vectorA = Vector2.newInstance()
+
+    var toX = 0F
         private set
-    var toY = 0f
+
+    var toY = 0F
         private set
-    private val vectorB: Vector2? = null
-    var normalX = 0f
+
+    private val vectorB = Vector2.newInstance()
+
+    var normalX = 0F
         private set
-    var normalY = 0f
+
+    var normalY = 0F
         private set
-    private val vectorN: Vector2? = null
-    private var vcx = 0f
-    private var vcy = 0f
-    private val vectorC: Vector2? = null
+
+    private val vectorN = Vector2.newInstance()
+
+    private var vcx = 0F
+
+    private var vcy = 0F
+
+    private val vectorC: Vector2 = Vector2.newInstance()
+
     private var renderNormal = false
 
-    constructor() {}
     constructor(aX: Float, aY: Float, bX: Float, bY: Float) {
         fromX = aX
         fromY = aY
@@ -74,13 +85,13 @@ class Wall : Renderable {
         val temp = Vector2.newInstance().set(toX, toY).sub(fromX, fromY).normalize()
         normalX = -temp.y
         normalY = temp.x
-        temp.set(fromX, fromY).add(toX, toY).div(2f)
+        temp.set(fromX, fromY).add(toX, toY).div(2F)
         vcx = temp.x
         vcy = temp.y
     }
 
     val from: Vector2
-        get() = vectorA!!.set(fromX, fromY)
+        get() = vectorA.set(fromX, fromY)
 
     fun setFrom(x: Float, y: Float) {
         fromX = x
@@ -89,7 +100,7 @@ class Wall : Renderable {
     }
 
     val to: Vector2
-        get() = vectorB!!.set(toX, toY)
+        get() = vectorB.set(toX, toY)
 
     fun setTo(x: Float, y: Float) {
         toX = x
@@ -98,7 +109,7 @@ class Wall : Renderable {
     }
 
     val normal: Vector2
-        get() = vectorN!!.set(normalX, normalY)
+        get() = vectorN.set(normalX, normalY)
 
     fun setNormal(x: Float, y: Float) {
         normalX = x
@@ -106,7 +117,7 @@ class Wall : Renderable {
     }
 
     val center: Vector2
-        get() = vectorC!!.set(vcx, vcy)
+        get() = vectorC.set(vcx, vcy)
 
     fun enableRenderNormal(enabled: Boolean) {
         renderNormal = enabled
