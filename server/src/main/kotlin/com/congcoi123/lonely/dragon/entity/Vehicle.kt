@@ -180,12 +180,18 @@ class Vehicle(
         // a vector to hold the transformed vertices
         val shape: List<Vector2> = if (isSmoothing) {
             Transformation.pointsToWorldSpace(
-                this.shape, position, getSmoothedHeading(),
-                getSmoothedHeading().perpendicular(), scale
+                this.shape,
+                position,
+                getSmoothedHeading(),
+                getSmoothedHeading().perpendicular(),
+                scale
             )
         } else {
             Transformation.pointsToWorldSpace(
-                this.shape, position, heading, side,
+                this.shape,
+                position,
+                heading,
+                side,
                 scale
             )
         }

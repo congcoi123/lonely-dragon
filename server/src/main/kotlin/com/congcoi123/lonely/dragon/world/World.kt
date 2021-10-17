@@ -389,8 +389,11 @@ class World(
 
         // set up the spatial subdivision class
         cellSpace = CellSpacePartition(
-            clientX.toFloat(), clientY.toFloat(), paramLoader!!.NUM_CELLS_X,
-            paramLoader.NUM_CELLS_Y, paramLoader.NUM_AGENTS
+            clientX.toFloat(),
+            clientY.toFloat(),
+            paramLoader!!.NUM_CELLS_X,
+            paramLoader.NUM_CELLS_Y,
+            paramLoader.NUM_AGENTS
         )
 
         val border = 30f

@@ -225,10 +225,10 @@ class SteeringBehavior(
     /**
      * This behavior creates a force that steers the agent towards the evader.
      */
-    private fun doPursuit(evader: Vehicle?): Vector2 {
+    private fun doPursuit(evader: Vehicle): Vector2 {
         // if the evader is ahead and facing the agent then we can just seek
         // for the evader's current position.
-        val toEvader = evader!!.position.sub(vehicle.position)
+        val toEvader = evader.position.sub(vehicle.position)
         val relativeHeading = vehicle.heading.getDotProductValue(evader.heading)
         // acos(0.95) = 18degs
         if (toEvader.getDotProductValue(vehicle.heading) > 0
@@ -251,9 +251,9 @@ class SteeringBehavior(
      * Similar to pursuit except the agent Flees from the estimated future position
      * of the pursuer.
      */
-    private fun doEvade(pursuer: Vehicle?): Vector2 {
+    private fun doEvade(pursuer: Vehicle): Vector2 {
         // Not necessary to include the check for facing direction this time
-        val toPursuer = pursuer!!.position.sub(vehicle.position)
+        val toPursuer = pursuer.position.sub(vehicle.position)
 
         // uncomment the following two lines to have Evade only consider pursuers
         // within a 'threat range'
@@ -294,7 +294,7 @@ class SteeringBehavior(
         temp2.mul(wanderRadius)
 
         // move the target into a position WanderDist in front of the agent
-        val target = Vector2.newInstance().set(wanderDistance, wanderDistance).add(temp2)
+        val target = Vector2.newInstance().set(wanderDistance, 0F).add(temp2)
 
         // project the target into world space
         val targetToWorldSpace = Transformation.pointToWorldSpace(
@@ -997,7 +997,8 @@ class SteeringBehavior(
         if (!isSpacePartitioning) {
             // tag neighbors if any of the following 3 group behaviors are switched on
             if (isBehavior(Behavior.SEPARATION) || isBehavior(Behavior.ALIGNMENT) || isBehavior(Behavior.COHESION)) {
-                vehicle.world.tagVehiclesWithinViewRange(vehicle, agentViewDistance)
+                // FIXME: consider this case
+                // vehicle.world.tagVehiclesWithinViewRange(vehicle, agentViewDistance)
             }
         } else {
             // calculate neighbors in cell-space if any of the following 3 group
@@ -1573,10 +1574,10 @@ class SteeringBehavior(
 
     companion object {
         // the radius of the constraining circle for to wander behavior
-        const val WANDER_RADIUS = 1.2F
+        const val WANDER_RADIUS = 0.8F
 
         // distance to wander circle is projected in front of the agent
-        const val WANDER_DISTANCE = 2F
+        const val WANDER_DISTANCE = 10F
 
         // the maximum amount of displacement along the circle each frame
         const val WANDER_JITTER_PER_SECOND = 80F

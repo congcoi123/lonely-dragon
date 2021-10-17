@@ -149,6 +149,7 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 				spriteAnimationSimple.start(0.1f, Animation.LOOP);
 			} else {
 				spriteAnimationSimple.resize(0.05f);
+				spriteAnimationSimple.start(0.1f, Animation.LOOP);
 			}
 			spriteAnimations.add(spriteAnimationSimple);
 		}
