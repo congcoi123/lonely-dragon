@@ -32,6 +32,16 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
 }
 
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "com.congcoi123.lonely.dragon.LonelyDragonKt"
+    }
+    configurations["compileClasspath"].forEach { file: File ->
+        from(zipTree(file.absoluteFile))
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 detekt {
     reports {
         xml.enabled = false
