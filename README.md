@@ -48,10 +48,27 @@ Setups the configuration file as the program arguments like the following image.
 ![intellij-setting-configuration](assets/intellij-setting-configuration.png)
 
 ### Client Side
+#### Install
 Import the libraries manually by the follwing guilde.
 ![eclipse-setting-libs](assets/eclipse-setting-libs.png)
 Then add the `assets` directory as a *source folder*.
 ![eclipse-setting-assets](assets/eclipse-setting-assets.png)
+
+#### Issues?
+When you try to run client on the macOS, you may encounter the below issue.
+![client-issue](assets/client-issue.png)
+
+#### How to fix?
+Step 1: Copy the path to to missing file.
+![client-fix-1](assets/client-fix-1.png)
+
+Step 2: Go to the folder.
+![client-fix-2](assets/client-fix-2.png)
+
+Step 3: Change the file extension from *.jnilib* to *.dylib*, so the final result you should get the file `liblwjgl.dylib`.
+![client-fix-3](assets/client-fix-3.png)
+
+Step 4: Re-run the client.
 
 ## License
 The [`TenIO`](https://github.com/congcoi123/tenio) project is currently available under the [MIT](LICENSE) License.
@@ -68,7 +85,7 @@ $ git clone https://github.com/congcoi123/lonely-dragon.git
 ```
 
 ## Wanna see the result?
-Then you should download the demo and follow the guides.
+Then you should download the demo and follow the guidance:
 [Lonely Dragon](https://drive.google.com/drive/folders/1A3dWw3ccqPTiqJ8JqAweaTWiLalUwXlb?usp=sharing)
 
 > Happy coding !
