@@ -36,6 +36,7 @@ import com.congcoi123.lonely.dragon.c2engine.sprite.SpriteAnimation;
 import com.congcoi123.lonely.dragon.constant.Constant;
 import com.congcoi123.lonely.dragon.constant.SharedEventKey;
 import com.congcoi123.lonely.dragon.constant.UdpEstablishedState;
+import com.congcoi123.lonely.dragon.network.ClientUtility;
 import com.congcoi123.lonely.dragon.network.DatagramListener;
 import com.congcoi123.lonely.dragon.network.SocketListener;
 import com.congcoi123.lonely.dragon.network.TCP;
@@ -48,7 +49,7 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 
 	private TCP tcp;
 	private UDP udp;
-	
+
 	private String playerName;
 	private int lastPositionX;
 	private boolean flip;
@@ -66,9 +67,9 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 		// create a new UDP object and listen for this port
 		udp = new UDP(Constant.DATAGRAM_PORT);
 		udp.receive(this);
-		
+
 		// initialization
-		playerName = "kong";
+		playerName = ClientUtility.generateRandomString(10);
 		lastPositionX = 0;
 		flip = false;
 
@@ -115,16 +116,20 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 			int positionX = transform.get(1);
 			int positionY = transform.get(2);
 
-			if (lastPositionX > positionX) {
-				if (!flip) {
-					spriteAnimations.get(index).setFlipX(true);
-					flip = true;
+			// only flip the big guy sprite
+			if (Math.abs(lastPositionX - positionX) > 2 && index == 99) {
+				if (lastPositionX > positionX) {
+					if (!flip) {
+						spriteAnimations.get(index).setFlipX(true);
+						flip = true;
+					}
+				} else {
+					if (flip) {
+						spriteAnimations.get(index).setFlipX(false);
+						flip = false;
+					}
 				}
-			} else {
-				if (flip) {
-					spriteAnimations.get(index).setFlipX(false);
-					flip = false;
-				}
+
 			}
 
 			// a naive synchronous for testing ...
@@ -145,11 +150,10 @@ public class GameScreen extends XScreen implements AssetManageable, SocketListen
 			SpriteAnimation spriteAnimationSimple = new SpriteAnimation(
 					FramesGenerator.getFramesFromTexture(Assets.TX_TEST_DRAGON, 1, 6));
 			if (i == 99) {
-				spriteAnimationSimple.resize(0.3f);
+				spriteAnimationSimple.resize(0.25f);
 				spriteAnimationSimple.start(0.1f, Animation.LOOP);
 			} else {
 				spriteAnimationSimple.resize(0.05f);
-				spriteAnimationSimple.start(0.1f, Animation.LOOP);
 			}
 			spriteAnimations.add(spriteAnimationSimple);
 		}
