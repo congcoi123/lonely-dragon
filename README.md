@@ -27,6 +27,9 @@ based server specifically designed for multiplayer games, which supports UDP, TC
 
 This project demonstrates how to manipulate the frame to make a simple game with the server-side is made with Kotlin and the client app is supported by the Libgdx framework.contains a collection of examples that show you how to manipulate the framework.
 
+## First Glimpse
+![demo](assets/lonely-dragon-demo.gif)
+
 ## Dependencies
 ```txt
 - tenio-core
