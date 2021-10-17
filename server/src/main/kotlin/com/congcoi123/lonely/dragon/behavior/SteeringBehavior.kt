@@ -294,7 +294,7 @@ class SteeringBehavior(
         temp2.mul(wanderRadius)
 
         // move the target into a position WanderDist in front of the agent
-        val target = Vector2.newInstance().set(wanderDistance, 0F).add(temp2)
+        val target = Vector2.newInstance().set(wanderDistance, wanderDistance).add(temp2)
 
         // project the target into world space
         val targetToWorldSpace = Transformation.pointToWorldSpace(
@@ -997,7 +997,7 @@ class SteeringBehavior(
         if (!isSpacePartitioning) {
             // tag neighbors if any of the following 3 group behaviors are switched on
             if (isBehavior(Behavior.SEPARATION) || isBehavior(Behavior.ALIGNMENT) || isBehavior(Behavior.COHESION)) {
-                // vehicle.world.tagVehiclesWithinViewRange(vehicle, 10F)
+                vehicle.world.tagVehiclesWithinViewRange(vehicle, agentViewDistance)
             }
         } else {
             // calculate neighbors in cell-space if any of the following 3 group

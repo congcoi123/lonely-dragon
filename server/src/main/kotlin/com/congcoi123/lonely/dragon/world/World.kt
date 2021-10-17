@@ -162,7 +162,7 @@ class World(
      */
     private fun createObstacles() {
         // create a number of randomly sized tiddlywinks
-        for (index in 0..paramLoader!!.NUM_OBSTACLES) {
+        for (index in 0 until paramLoader!!.NUM_OBSTACLES) {
             var overlapped = true
 
             // keep creating tiddlywinks until we find one that doesn't overlap
@@ -395,7 +395,7 @@ class World(
 
         val border = 30f
         path = Path(5, border, border, clientX - border, clientY - border, true)
-        for (index in 0..paramLoader.NUM_AGENTS) {
+        for (index in 0 until paramLoader.NUM_AGENTS) {
             // determine a random starting position
             val spawnPosition = Vector2.valueOf(
                 clientX / 2 + MathUtility.randomClamped() * clientX / 2,
