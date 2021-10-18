@@ -12,12 +12,13 @@ version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
     // tenio
-    implementation("io.github.congcoi123:tenio-core:0.0.2")
+    implementation("io.github.congcoi123:tenio-core:0.0.4")
     implementation("io.github.congcoi123:tenio-engine:0.0.2")
 
     // detekt
