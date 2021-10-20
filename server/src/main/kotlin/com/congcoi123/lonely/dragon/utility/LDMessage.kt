@@ -26,7 +26,7 @@ package com.congcoi123.lonely.dragon.utility
 import com.tenio.common.utility.TimeUtility
 import com.tenio.engine.message.ExtraMessage
 
-class ExampleMessage private constructor() : ExtraMessage {
+class LDMessage private constructor() : ExtraMessage {
 
     private val content = mutableMapOf<String, Any>()
 
@@ -41,6 +41,6 @@ class ExampleMessage private constructor() : ExtraMessage {
     override fun getContentByKey(key: String) = content[key]
 
     companion object {
-        fun newInstance() = ExampleMessage()
+        fun newInstance() = LDMessage()
     }
 }

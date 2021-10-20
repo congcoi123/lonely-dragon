@@ -37,6 +37,7 @@ fun main(args: Array<String>) {
     val world = World(LDConstant.DESIGN_WIDTH, LDConstant.DESIGN_HEIGHT)
     // Enable debugger window
     world.debug("Local Lonely Dragon")
+    
     val heartBeatManager = HeartBeatManagerImpl()
     heartBeatManager.initialize(1)
     heartBeatManager.create("world", world)

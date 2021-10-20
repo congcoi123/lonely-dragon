@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 package com.congcoi123.lonely.dragon.configuration
 
-import com.congcoi123.lonely.dragon.utility.LDConfigurationType
+import com.congcoi123.lonely.dragon.constant.LDConfigurationType
 import com.tenio.common.bootstrap.annotation.Component
 import com.tenio.common.configuration.Configuration
 import com.tenio.core.configuration.CoreConfiguration
