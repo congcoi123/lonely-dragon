@@ -24,7 +24,7 @@ THE SOFTWARE.
 package com.congcoi123.lonely.dragon.handler
 
 import com.congcoi123.lonely.dragon.constant.ServerEventKey
-import com.congcoi123.lonely.dragon.utility.ExampleMessage
+import com.congcoi123.lonely.dragon.utility.LDMessage
 import com.congcoi123.lonely.dragon.utility.SharedEventKey
 import com.tenio.common.bootstrap.annotation.AutowiredAcceptNull
 import com.tenio.common.bootstrap.annotation.Component
@@ -44,7 +44,7 @@ class ReceivedMessageFromPlayerHandler : AbstractExtension(), EventReceivedMessa
     override fun handle(player: Player, message: ServerMessage) {
         val data = message.data as ZeroObject
         if (data.containsKey(SharedEventKey.KEY_PLAYER_REQUEST_NEIGHBOURS)) {
-            val request = ExampleMessage.newInstance()
+            val request = LDMessage.newInstance()
             request.putContent(ServerEventKey.KEY_PLAYER_NAME, player.name)
             request.putContent(
                 ServerEventKey.KEY_PLAYER_REQUEST,

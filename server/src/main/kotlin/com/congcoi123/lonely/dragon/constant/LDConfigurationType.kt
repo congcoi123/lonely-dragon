@@ -1,4 +1,4 @@
-package com.congcoi123.lonely.dragon.utility
+package com.congcoi123.lonely.dragon.constant
 
 import com.tenio.common.configuration.ConfigurationType
 

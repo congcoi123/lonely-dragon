@@ -32,6 +32,5 @@ import com.tenio.core.ApplicationLauncher
 @Bootstrap
 class LonelyDragon
 
-fun main(params: Array<String>) {
+fun main(params: Array<String>) =
     ApplicationLauncher.run(LonelyDragon::class.java, params)
-}
